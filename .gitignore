@@ -1,0 +1,14 @@
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio and local user settings
+.vs/
+*.user
+*.suo
+
+# Local uploads created by users
+WebApplication1/WebApplication1/wwwroot/uploads/
+
+# Local ASP.NET data-protection keys
+WebApplication1/WebApplication1/DataProtectionKeys/

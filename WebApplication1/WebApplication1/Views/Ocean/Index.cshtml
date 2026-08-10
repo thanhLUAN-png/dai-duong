@@ -1,0 +1,14 @@
+@model IEnumerable<WebApplication1.Models.ArtworkSubmission>
+@{ ViewData["Title"] = "Đại dương sống"; }
+<main class="public-ocean ocean-depth-page ocean-clean-page">
+    <nav class="ocean-nav ocean-nav-solid"><a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">◒</span> biển của chúng mình</a><div class="nav-links"><a asp-controller="Studio" asp-action="Index">Xưởng vẽ</a><a class="nav-action" asp-controller="Studio" asp-action="Index">Tạo sinh vật</a></div></nav>
+    <section class="ocean-depth-world ocean-clean-world">
+        <div class="light-rays"></div><div class="depth-bubble bubble-one"></div><div class="depth-bubble bubble-two"></div><div class="depth-bubble bubble-three"></div>
+        <div class="ocean-creature-grid ocean-open-grid" id="oceanCreatureGrid">
+            @foreach (var art in Model.Select((item, index) => new { item, index }))
+            { <article class="released-creature depth-creature @(art.item.Template.Type == "Fish" ? "fish-creature" : "")" data-creature-index="@art.index"><img src="@art.item.ImagePath" alt="@(art.item.Title ?? art.item.Template.Name)" /><div class="creature-caption"><strong>@(art.item.Title ?? art.item.Template.Name)</strong><span>vẽ bởi @art.item.User.DisplayName</span></div></article> }
+        </div>
+        @if (!Model.Any()) { <div class="ocean-empty ocean-empty-icon" aria-label="Đại dương đang chờ sinh vật đầu tiên">◌</div> }
+        <div class="coral-reef reef-left"><i></i><i></i><i></i></div><div class="coral-reef reef-right"><i></i><i></i><i></i></div><div class="coral-flower flower-a"><i></i><i></i><i></i><i></i></div><div class="coral-flower flower-b"><i></i><i></i><i></i><i></i></div><div class="kelp kelp-a"></div><div class="kelp kelp-b"></div><div class="kelp kelp-c"></div>
+    </section>
+</main>
