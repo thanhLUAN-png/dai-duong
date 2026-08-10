@@ -111,7 +111,7 @@ document.querySelectorAll('.ocean-open-grid .released-creature img').forEach(ima
   if (image.complete) trimArtwork(); else image.addEventListener('load', trimArtwork, { once: true });
 });
 
-const naturalOcean = document.querySelector('.ocean-open-grid');
+const naturalOcean = document.querySelector('.ocean-open-grid:not(.immersive-fish-layer)');
 if (naturalOcean) {
   const fishes = [...naturalOcean.querySelectorAll('.fish-creature')];
   const swimStates = fishes.map((fish, index) => ({

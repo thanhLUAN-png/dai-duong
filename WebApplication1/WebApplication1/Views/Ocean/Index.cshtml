@@ -1,14 +1,23 @@
 @model IEnumerable<WebApplication1.Models.ArtworkSubmission>
-@{ ViewData["Title"] = "Đại dương sống"; }
-<main class="public-ocean ocean-depth-page ocean-clean-page">
+@{ ViewData["Title"] = "Đại dương sống"; var frames = new[] { "coral-frame-1.png", "coral-frame-2.png", "coral-frame-3.png", "coral-frame-4.png" }; }
+<main class="public-ocean immersive-ocean-page">
     <nav class="ocean-nav ocean-nav-solid"><a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">◒</span> biển của chúng mình</a><div class="nav-links"><a asp-controller="Studio" asp-action="Index">Xưởng vẽ</a><a class="nav-action" asp-controller="Studio" asp-action="Index">Tạo sinh vật</a></div></nav>
-    <section class="ocean-depth-world ocean-clean-world">
-        <div class="light-rays"></div><div class="depth-bubble bubble-one"></div><div class="depth-bubble bubble-two"></div><div class="depth-bubble bubble-three"></div>
-        <div class="ocean-creature-grid ocean-open-grid" id="oceanCreatureGrid">
-            @foreach (var art in Model.Select((item, index) => new { item, index }))
-            { <article class="released-creature depth-creature @(art.item.Template.Type == "Fish" ? "fish-creature" : "")" data-creature-index="@art.index"><img src="@art.item.ImagePath" alt="@(art.item.Title ?? art.item.Template.Name)" /><div class="creature-caption"><strong>@(art.item.Title ?? art.item.Template.Name)</strong><span>vẽ bởi @art.item.User.DisplayName</span></div></article> }
+    <section class="immersive-ocean" id="immersiveOcean" aria-label="Hồ cá cộng đồng — kéo ngang để khám phá">
+        <div class="light-rays immersive-rays"></div><div class="caustics"></div>
+        <div class="panorama-track" id="panoramaTrack" aria-hidden="true">
+            @for (var loop = -1; loop <= 1; loop++) { for (var i = 0; i < frames.Length; i++) { <div class="ocean-panel" style="background-image:url('/images/coral-frames/@frames[i]')"></div> } }
+            @for (var loop = -1; loop <= 1; loop++) {
+                <img class="world-coral staghorn soft" style="--zone:@((loop + 1) * 4 + 0);--x:8vw;--w:15vw;--d:-.7s" src="/images/corals/staghorn.png?v=3" alt="" />
+                <img class="world-coral sea-fan soft" style="--zone:@((loop + 1) * 4 + 1);--x:62vw;--w:18vw;--d:-2.1s" src="/images/corals/sea-fan.png?v=3" alt="" />
+                <img class="world-coral soft-coral soft" style="--zone:@((loop + 1) * 4 + 2);--x:12vw;--w:13vw;--d:-1.2s" src="/images/corals/soft-coral.png?v=3" alt="" />
+                <img class="world-coral brain" style="--zone:@((loop + 1) * 4 + 2);--x:68vw;--w:11vw" src="/images/corals/brain-coral.png?v=3" alt="" />
+                <img class="world-coral mushroom" style="--zone:@((loop + 1) * 4 + 3);--x:38vw;--w:16vw" src="/images/corals/mushroom-coral.png?v=3" alt="" />
+            }
+        </div>
+        <div class="ocean-creature-grid ocean-open-grid immersive-fish-layer" id="oceanCreatureGrid">
+            @foreach (var art in Model.Select((item, index) => new { item, index })) { <article class="released-creature depth-creature @(art.item.Template.Type == "Fish" ? "fish-creature" : "")" data-creature-index="@art.index"><img src="@art.item.ImagePath" alt="@(art.item.Title ?? art.item.Template.Name)" /><div class="creature-caption"><strong>@(art.item.Title ?? art.item.Template.Name)</strong><span>vẽ bởi @art.item.User.DisplayName</span></div></article> }
         </div>
         @if (!Model.Any()) { <div class="ocean-empty ocean-empty-icon" aria-label="Đại dương đang chờ sinh vật đầu tiên">◌</div> }
-        <div class="coral-reef reef-left"><i></i><i></i><i></i></div><div class="coral-reef reef-right"><i></i><i></i><i></i></div><div class="coral-flower flower-a"><i></i><i></i><i></i><i></i></div><div class="coral-flower flower-b"><i></i><i></i><i></i><i></i></div><div class="kelp kelp-a"></div><div class="kelp kelp-b"></div><div class="kelp kelp-c"></div>
+        <div class="ocean-drag-hint"><span>↔</span> Kéo ngang để xem quanh hồ <b id="oceanFrameLabel">01 / 04</b></div>
     </section>
 </main>
