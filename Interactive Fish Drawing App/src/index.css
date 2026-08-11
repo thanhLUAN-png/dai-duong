@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&display=swap');
+
+@import 'tailwindcss';
+
+@theme {
+  --font-nunito: 'Nunito', sans-serif;
+  --color-ocean-deep: #0b2545;
+  --color-ocean-blue: #1488c6;
+  --color-ocean-mid: #2196f3;
+  --color-sky: #7ec8e3;
+  --color-seafoam: #a8f0e8;
+  --color-coral: #ff6b6b;
+  --color-sandy: #ffd580;
+  --color-mint: #b8f2e6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(160deg, #e0f7ff 0%, #b8e4f9 50%, #d0f0ea 100%);
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #90caf9; border-radius: 99px; }
+
+/* Bubble animation */
+@keyframes bubble-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+}
+
+@keyframes swim {
+  0% { transform: translateX(0) scaleX(1); }
+  49% { transform: translateX(calc(100vw + 200px)) scaleX(1); }
+  50% { transform: translateX(calc(100vw + 200px)) scaleX(-1); }
+  99% { transform: translateX(0) scaleX(-1); }
+  100% { transform: translateX(0) scaleX(1); }
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes wave {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(180,230,255,0.3));
+  border: 1px solid rgba(255,255,255,0.6);
+  animation: bubble-rise linear infinite;
+  pointer-events: none;
+}
+
+.float-anim {
+  animation: float-y 3s ease-in-out infinite;
+}
+
+.sway-anim {
+  animation: sway 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}

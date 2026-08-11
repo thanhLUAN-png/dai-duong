@@ -1,3 +1,313 @@
 @model IEnumerable<WebApplication1.Models.CreatureTemplate>
-@{ ViewData["Title"] = "Xưởng vẽ"; }
-<main class="studio-page"><nav class="studio-nav"><a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">◒</span> biển của chúng mình</a><div><a asp-action="MyArt">Tác phẩm của tôi</a><form class="inline-form" asp-controller="Account" asp-action="Logout" method="post"><button>Đăng xuất</button></form></div></nav><section class="studio-hero"><p class="eyebrow">Xưởng tô màu</p><h1>Hôm nay bạn muốn<br /><em>vẽ ai?</em></h1><p>Chọn một nét viền và bắt đầu tạo sinh vật mang màu sắc của riêng bạn.</p></section><section class="template-grid">@foreach (var item in Model) { <a class="template-card" asp-action="Color" asp-route-id="@item.Id"><div class="template-art type-@item.Type.ToLowerInvariant()">@(item.Type == "Fish" ? "🐠" : item.Type == "Turtle" ? "🐢" : item.Type == "Starfish" ? "★" : "🪼")</div><p>@item.Type</p><h2>@item.Name</h2><span>Chọn để tô →</span></a> }</section></main>
+@{ 
+    ViewData["Title"] = "Xưởng vẽ"; 
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "U";
+    var templates = Model.ToList();
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  * { box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; margin: 0; }
+
+  /* Background bubbles */
+  @@keyframes bubble-rise {
+    0%   { transform: translateY(0) scale(1);   opacity: 0.7; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+  }
+  @@keyframes wave-move {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* Hero entrance */
+  @@keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);   }
+  }
+
+  /* Palette icon float */
+  @@keyframes palette-float {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50%       { transform: translateY(-12px) rotate(3deg); }
+  }
+
+  /* Card float stagger */
+  @@keyframes card-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  /* Swim fish bg - JS controlled, same as ocean */
+  .studio-fish {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 0;
+    will-change: left, top, transform;
+  }
+  .studio-fish img {
+    width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 6px 14px rgba(0,25,48,0.35));
+  }
+  @@keyframes fish-tail-wag {
+    from { transform: rotate(-8deg); }
+    to   { transform: rotate(8deg); }
+  }
+  .studio-fish .fish-tail {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform-origin: 68% 50%;
+    animation: fish-tail-wag 0.9s infinite alternate ease-in-out;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(180,230,255,0.3));
+    border: 1px solid rgba(255,255,255,0.6);
+    animation: bubble-rise linear infinite;
+    pointer-events: none;
+  }
+
+  .studio-hero-icon { animation: palette-float 3.5s ease-in-out infinite; }
+
+  .studio-hero-title  { animation: fade-up .7s cubic-bezier(.2,.8,.2,1) both; }
+  .studio-hero-sub    { animation: fade-up .7s .12s cubic-bezier(.2,.8,.2,1) both; }
+  .studio-grid        { animation: fade-up .7s .22s cubic-bezier(.2,.8,.2,1) both; }
+
+  .template-card {
+    animation: card-float 4s ease-in-out infinite;
+    transition: box-shadow .25s, transform .25s;
+  }
+  .template-card:nth-child(2) { animation-delay: -1.4s; }
+  .template-card:nth-child(3) { animation-delay: -2.8s; }
+
+  .template-card:hover {
+    box-shadow: 0 24px 60px rgba(20,136,198,0.22) !important;
+    transform: translateY(-8px) scale(1.025) !important;
+    animation-play-state: paused;
+  }
+
+  .card-art {
+    transition: transform .3s;
+  }
+  .template-card:hover .card-art {
+    transform: scale(1.12) rotate(5deg);
+  }
+
+  /* fish container sizes */
+  .studio-fish-lg { width: 150px; }
+  .studio-fish-sm { width: 100px; }
+
+  .wave-bar {
+    height: 38px; overflow: hidden; position: relative;
+  }
+  .wave-bar span {
+    position: absolute; width: 200%; height: 55px; left: 0; bottom: -22px;
+    border-radius: 50% 50% 0 0;
+    animation: wave-move linear infinite;
+  }
+</style>
+
+<div class="min-h-screen flex flex-col" style="background: linear-gradient(160deg, #e0f7ff 0%, #b8e4f9 50%, #d0f0ea 100%); position: relative; overflow-x: hidden;">
+
+  <!-- Bubbles -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden" style="z-index:0">
+    @for (int i = 0; i < 16; i++)
+    {
+        var bx = Random.Shared.Next(2, 98);
+        var bs = Random.Shared.Next(7, 26);
+        var bd = Random.Shared.Next(9, 22);
+        var bDelay = Random.Shared.Next(0, 12);
+        <div class="bubble" style="left:@(bx)%;bottom:-40px;width:@(bs)px;height:@(bs)px;animation-duration:@(bd)s;animation-delay:@(bDelay)s;"></div>
+    }
+  </div>
+
+  <!-- Swimming fish (cấu trúc y hệt ocean-immersive) -->
+  @{
+      var approvedArt = ViewBag.ApprovedArt as List<string> ?? new List<string>();
+      var fishImages = new List<string>();
+      for (int f = 0; f < 4; f++) {
+          fishImages.Add(approvedArt.Count > f ? approvedArt[f] : "/images/templates/fish-template.png");
+      }
+  }
+  <div id="studioFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;">
+    @for (int fi = 0; fi < fishImages.Count; fi++)
+    {
+        <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
+          <img src="@fishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
+        </article>
+    }
+  </div>
+
+  <!-- NAVBAR -->
+  <nav style="background: linear-gradient(90deg, #0b2545 0%, #1488c6 100%); box-shadow: 0 2px 20px rgba(11,37,69,0.3);" class="sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-white font-black text-xl tracking-tight" style="text-decoration:none;">
+        <span class="text-2xl">🐟</span>
+        <span>Biển Của Chúng Mình</span>
+      </a>
+      <div class="hidden md:flex items-center gap-1">
+        <a asp-controller="Home" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Trang Chủ</a>
+        <a asp-controller="Studio" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:#0b2545;background:#90e0ef;text-decoration:none;">Xưởng Vẽ</a>
+        <a asp-controller="Ocean" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Đại Dương</a>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (signedIn)
+        {
+            <a asp-controller="Studio" asp-action="MyArt" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">🎨 Tác phẩm của tôi</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Admin" asp-action="Index" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,107,107,.3);color:#ffd6d6;text-decoration:none;">⚙️ Admin</a>
+            }
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black" style="background:#a8f0e8;color:#0b2545;">@userName.Substring(0,1).ToUpper()</span>
+                <span class="text-white text-sm font-bold hidden md:block">@userName</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="text-xs font-semibold px-2" style="color:rgba(255,255,255,.7);">Đăng xuất</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="flex items-center gap-2">
+                <a asp-controller="Account" asp-action="Login" class="text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">Đăng nhập</a>
+                <a asp-controller="Account" asp-action="Register" class="text-sm font-bold px-4 py-2 rounded-full" style="background:#ff6b6b;color:white;text-decoration:none;">Đăng ký</a>
+            </div>
+        }
+      </div>
+    </div>
+  </nav>
+
+  <!-- Wave separator top of content -->
+  <div class="wave-bar" style="z-index:1">
+    <span style="background:#1488c618;animation-duration:10s;"></span>
+    <span style="background:#a8f0e860;animation-duration:14s;animation-direction:reverse;"></span>
+  </div>
+
+  <!-- HERO -->
+  <main class="flex-1 relative pb-24" style="z-index:1">
+    <section class="flex flex-col items-center text-center px-4 pt-14 pb-10">
+      <div class="studio-hero-icon text-6xl mb-5">🎨</div>
+      <h1 class="studio-hero-title font-black mb-3" style="font-size:clamp(40px,7vw,72px);color:#0b2545;letter-spacing:-.04em;line-height:1;">
+        Xưởng Vẽ
+      </h1>
+      <p class="studio-hero-sub text-lg font-semibold max-w-md mx-auto" style="color:#4a7fa5;line-height:1.6;">
+        Chọn một loài sinh vật biển để bắt đầu tô màu.<br/>Hãy thỏa sức sáng tạo! 🌈
+      </p>
+    </section>
+
+    <!-- TEMPLATE CARDS -->
+    <section class="studio-grid max-w-4xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
+        @{ int cardIdx = 0; }
+        @foreach (var item in templates)
+        {
+            var emoji = item.Type == "Fish" ? "🐠" : item.Type == "Turtle" ? "🐢" : item.Type == "Starfish" ? "⭐" : "🪼";
+            var cardBg = item.Type == "Fish"     ? "linear-gradient(135deg,#a8f0e855,#7ec8e355)" :
+                         item.Type == "Turtle"   ? "linear-gradient(135deg,#b5ead755,#a8f0c055)" :
+                         item.Type == "Starfish" ? "linear-gradient(135deg,#ffd17055,#ffbc4255)" :
+                                                   "linear-gradient(135deg,#cdb4db55,#d0a9f555)";
+            var delay = cardIdx * 1.4;
+            <a asp-action="Color" asp-route-id="@item.Id"
+               class="template-card flex flex-col rounded-3xl overflow-hidden"
+               style="background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);border:2px solid rgba(20,136,198,0.1);box-shadow:0 10px 36px rgba(11,37,69,0.08);text-decoration:none;animation-delay:-@(delay)s;">
+
+              <!-- Art area -->
+              <div class="relative flex items-center justify-center overflow-hidden" style="height:200px;background:@cardBg;">
+                <!-- decorative circles -->
+                <div style="position:absolute;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.25);top:-30px;right:-30px;"></div>
+                <div style="position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);bottom:-20px;left:10px;"></div>
+                <div class="card-art" style="font-size:90px;line-height:1;position:relative;z-index:1;">@emoji</div>
+              </div>
+
+              <!-- Info area -->
+              <div class="flex flex-col p-6 flex-1">
+                <div class="text-xs font-black uppercase tracking-widest mb-2" style="color:#4a7fa5;letter-spacing:.12em;">@item.Type</div>
+                <h2 class="text-2xl font-black mb-3" style="color:#0b2545;">@item.Name</h2>
+                <div class="mt-auto flex items-center gap-2">
+                  <span class="text-sm font-black" style="color:#ff6b6b;">Chọn để tô màu →</span>
+                </div>
+              </div>
+            </a>
+            cardIdx++;
+        }
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer wave + footer -->
+  <div class="wave-bar" style="z-index:1">
+    <span style="background:#1488c622;animation-duration:9s;"></span>
+    <span style="background:#a8f0e870;animation-duration:13s;animation-direction:reverse;"></span>
+  </div>
+  <footer class="text-center py-5 text-sm font-bold" style="color:#1488c6;opacity:.7;z-index:1;">
+    🐠 Biển Của Chúng Mình — Nơi mỗi con cá mang một câu chuyện 🌊
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const layer = document.getElementById('studioFishLayer');
+  if (!layer) return;
+  const fishes = [...layer.querySelectorAll('.fish-creature')];
+  if (!fishes.length) return;
+
+  // Dùng y hệt toán học của ocean-immersive.js
+  const fishEpoch = Date.UTC(2026, 0, 1, 0, 0, 0);
+  const states = fishes.map((fish, index) => ({
+    fish,
+    seed:  index * 2.398 + 0.73,
+    phase: index * 1.713 + 0.41,
+  }));
+
+  function wrap(value, size) { return ((value % size) + size) % size; }
+
+  function animate(time) {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const realSeconds = (Date.now() - fishEpoch) / 1000;
+
+    states.forEach(state => {
+      const pathPhase   = realSeconds * (0.043 + (state.seed % 0.009)) + state.phase;
+      const vertPhase   = realSeconds * (0.17  + (state.seed % 0.03))  + state.seed;
+
+      const x = wrap(W * 0.5 + Math.sin(pathPhase) * W * 0.43 + state.seed * W * 0.11, W);
+      const y = H * (0.42 + Math.sin(vertPhase) * 0.18);
+
+      const face = Math.cos(pathPhase) >= 0 ? -1 : 1;
+      const wave  = Math.sin(time / 1000 * 1.75 + state.phase);
+      const tilt  = wave * 1.7;
+      const bobY  = wave * 8;
+
+      // opacity by edge proximity — mờ ở rìa, rõ ở giữa
+      const edgeDist = Math.min(x, W - x) / 150;
+      const opacity  = Math.min(1, edgeDist) * 0.5;
+
+      state.fish.style.setProperty('left',      `${x}px`,                          'important');
+      state.fish.style.setProperty('top',       `${y + bobY}px`,                   'important');
+      state.fish.style.setProperty('transform', `scaleX(${face}) rotate(${tilt}deg)`, 'important');
+      state.fish.style.setProperty('opacity',   `${opacity}`,                      'important');
+
+      const body = state.fish.querySelector('.fish-body-layer') || state.fish.querySelector('img');
+      const glow = 0.88 + (wave + 1) * 0.06;
+      if (body) body.style.filter = `brightness(${glow}) saturate(1.18) drop-shadow(0 10px 9px rgba(0,25,48,0.48))`;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+});
+</script>
+

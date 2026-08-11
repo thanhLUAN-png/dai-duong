@@ -1,23 +1,190 @@
 @model IEnumerable<WebApplication1.Models.ArtworkSubmission>
-@{ ViewData["Title"] = "Đại dương sống"; var frames = new[] { "coral-frame-1.png", "coral-frame-2.png", "coral-frame-3.png", "coral-frame-4.png" }; }
-<main class="public-ocean immersive-ocean-page">
-    <nav class="ocean-nav ocean-nav-solid"><a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">◒</span> biển của chúng mình</a><div class="nav-links"><a asp-controller="Studio" asp-action="Index">Xưởng vẽ</a><a class="nav-action" asp-controller="Studio" asp-action="Index">Tạo sinh vật</a></div></nav>
-    <section class="immersive-ocean" id="immersiveOcean" aria-label="Hồ cá cộng đồng — kéo ngang để khám phá">
-        <div class="light-rays immersive-rays"></div><div class="caustics"></div>
-        <div class="panorama-track" id="panoramaTrack" aria-hidden="true">
-            @for (var loop = -1; loop <= 1; loop++) { for (var i = 0; i < frames.Length; i++) { <div class="ocean-panel" style="background-image:url('/images/coral-frames/@frames[i]')"></div> } }
-            @for (var loop = -1; loop <= 1; loop++) {
-                <img class="world-coral staghorn soft" style="--zone:@((loop + 1) * 4 + 0);--x:8vw;--w:15vw;--d:-.7s" src="/images/corals/staghorn.png?v=3" alt="" />
-                <img class="world-coral sea-fan soft" style="--zone:@((loop + 1) * 4 + 1);--x:62vw;--w:18vw;--d:-2.1s" src="/images/corals/sea-fan.png?v=3" alt="" />
-                <img class="world-coral soft-coral soft" style="--zone:@((loop + 1) * 4 + 2);--x:12vw;--w:13vw;--d:-1.2s" src="/images/corals/soft-coral.png?v=3" alt="" />
-                <img class="world-coral brain" style="--zone:@((loop + 1) * 4 + 2);--x:68vw;--w:11vw" src="/images/corals/brain-coral.png?v=3" alt="" />
-                <img class="world-coral mushroom" style="--zone:@((loop + 1) * 4 + 3);--x:38vw;--w:16vw" src="/images/corals/mushroom-coral.png?v=3" alt="" />
+@{ 
+    ViewData["Title"] = "Đại dương"; 
+    var frames = new[] { "coral-frame-1.png", "coral-frame-2.png", "coral-frame-3.png", "coral-frame-4.png" }; 
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var userName = User.Identity?.Name ?? "U";
+    var fishCount = Model.Count();
+}
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  * { box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; margin: 0; }
+
+  /* Hero entrance */
+  @@keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);   }
+  }
+  .hero-animate { animation: fade-up .7s cubic-bezier(.2,.8,.2,1) both; }
+
+  /* Keep the nav link active styles */
+  .nav-link { color:rgba(255,255,255,.85); text-decoration:none; }
+  .nav-link.active { color:#0b2545; background:#90e0ef; }
+
+  /* Custom wave icon style */
+  .wave-icon-box {
+      width: 56px;
+      height: 56px;
+      background: #47b2e4;
+      border-radius: 12px 12px 12px 4px; /* Slightly asymmetric like Figma */
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      box-shadow: 0 4px 10px rgba(71, 178, 228, 0.3);
+  }
+  .wave-icon-sun {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.9;
+  }
+  .wave-icon-wave {
+      width: 150%;
+      height: 24px;
+      background: white;
+      border-radius: 50% 50% 0 0;
+      transform: translateX(-15%);
+      position: relative;
+  }
+  .wave-icon-wave::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 30%;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+  }
+
+  /* Seaweed sway animation */
+  @@keyframes seaweed-sway {
+      0% { transform: rotate(-4deg); }
+      100% { transform: rotate(4deg); }
+  }
+</style>
+
+<div class="min-h-screen flex flex-col" style="background: linear-gradient(180deg, #c4edf9 0%, #d8f3fa 100%); position: relative; overflow-x: hidden;">
+
+  <!-- NAVBAR -->
+  <nav style="background: linear-gradient(90deg, #0b2545 0%, #1488c6 100%);" class="sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-white font-black text-xl tracking-tight" style="text-decoration:none;">
+        <span class="text-2xl">🐟</span>
+        <span>Biển Của Chúng Mình</span>
+      </a>
+      <div class="hidden md:flex items-center gap-1">
+        <a asp-controller="Home" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold nav-link">Trang Chủ</a>
+        <a asp-controller="Studio" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold nav-link">Xưởng Vẽ</a>
+        <a asp-controller="Ocean" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold nav-link active">Đại Dương</a>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (signedIn)
+        {
+            <a asp-controller="Studio" asp-action="MyArt" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">🎨 Tác phẩm của tôi</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Admin" asp-action="Index" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,107,107,.3);color:#ffd6d6;text-decoration:none;">⚙️ Admin</a>
             }
-        </div>
-        <div class="ocean-creature-grid ocean-open-grid immersive-fish-layer" id="oceanCreatureGrid">
-            @foreach (var art in Model.Select((item, index) => new { item, index })) { <article class="released-creature depth-creature @(art.item.Template.Type == "Fish" ? "fish-creature" : "")" data-creature-index="@art.index"><img src="@art.item.ImagePath" alt="@(art.item.Title ?? art.item.Template.Name)" /><div class="creature-caption"><strong>@(art.item.Title ?? art.item.Template.Name)</strong><span>vẽ bởi @art.item.User.DisplayName</span></div></article> }
-        </div>
-        @if (!Model.Any()) { <div class="ocean-empty ocean-empty-icon" aria-label="Đại dương đang chờ sinh vật đầu tiên">◌</div> }
-        <div class="ocean-drag-hint"><span>↔</span> Kéo ngang để xem quanh hồ <b id="oceanFrameLabel">01 / 04</b></div>
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black" style="background:#a8f0e8;color:#0b2545;">@userName.Substring(0,1).ToUpper()</span>
+                <span class="text-white text-sm font-bold hidden md:block">@userName</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="text-xs font-semibold px-2" style="color:rgba(255,255,255,.7);">Đăng xuất</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="flex items-center gap-2">
+                <a asp-controller="Account" asp-action="Login" class="text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">Đăng nhập</a>
+                <a asp-controller="Account" asp-action="Register" class="text-sm font-bold px-4 py-2 rounded-full" style="background:#ff6b6b;color:white;text-decoration:none;">Đăng ký</a>
+            </div>
+        }
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 relative pb-24" style="z-index:1">
+    <!-- HERO SECTION -->
+    <section class="flex flex-col items-center text-center px-4 pt-12 pb-6 hero-animate">
+      <div class="flex flex-row items-center justify-center gap-3 mb-2">
+          <h1 class="font-black m-0" style="font-size:42px;color:#0e2946;letter-spacing:1px;line-height:1;">
+            Đại Dương
+          </h1>
+      </div>
+      <p class="text-base font-semibold" style="color:#5083a6;">
+        @fishCount con cá đang bơi dưới đại dương
+      </p>
     </section>
-</main>
+
+    <!-- OCEAN CONTAINER (The Aquarium Frame) -->
+    <section class="w-full max-w-[1400px] mx-auto px-4 hero-animate" style="animation-delay: 0.1s;">
+      <!-- The Aquarium Box exactly like Figma: wider, slightly smaller radius, no white border -->
+      <div class="relative w-full overflow-hidden shadow-[0_12px_40px_rgba(0,40,80,0.15)]" style="aspect-ratio: 2/1; max-height: 650px; border-radius: 20px; background: #094F97;">
+        
+        <!-- The actual immersive ocean from previous iteration goes here -->
+        <div class="immersive-ocean w-full h-full" id="immersiveOcean" aria-label="Hồ cá cộng đồng — kéo ngang để khám phá" style="background: transparent;">
+          <div class="light-rays immersive-rays" style="opacity: 0.3;"></div>
+          <div class="ocean-bubble-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          
+          <div class="panorama-track" id="panoramaTrack" aria-hidden="true">
+              @for (var loop = -1; loop <= 1; loop++) { 
+                  var rand = new Random(12345);
+                  for (var i = 0; i < 4; i++) { 
+                      <div class="ocean-panel relative" style="background: linear-gradient(180deg, #094F97 0%, #083474 75%, #191B48 100%); border-right: 1px solid rgba(255,255,255,0.02);">
+                          <!-- Sea floor -->
+                          <div class="absolute bottom-0 w-full h-[15%] border-t" style="border-color: rgba(255,255,255,0.15);"></div>
+                          <!-- Seaweeds -->
+                          <div class="absolute bottom-0 w-full h-[30%] pointer-events-none overflow-hidden">
+                              @for(int w = 0; w < 30; w++) {
+                                  var leftPos = (w * 3.33) + (rand.NextDouble() * 2.0);
+                                  var h = rand.Next(35, 85);
+                                  var flip = rand.Next(0, 2) == 0 ? "scaleX(-1)" : "none";
+                                  var dur = (rand.NextDouble() * 2.5 + 2.5).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                  var del = (rand.NextDouble() * -5.0).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                                  var color = new[] { "#00E599", "#00C475", "#00F5A3", "#059669" }[rand.Next(0, 4)];
+                                  <div class="absolute bottom-0" style="left: @(leftPos.ToString(System.Globalization.CultureInfo.InvariantCulture))%; transform-origin: bottom center; animation: seaweed-sway @(dur)s ease-in-out infinite alternate @(del)s;">
+                                      <svg width="12" height="@h" viewBox="0 0 12 80" class="opacity-90" style="transform: @flip;" preserveAspectRatio="none">
+                                          <path d="M6 80 Q 0 60 6 40 T 6 0" stroke="@color" stroke-width="4" stroke-linecap="round" fill="none" />
+                                      </svg>
+                                  </div>
+                              }
+                          </div>
+                      </div> 
+                  } 
+              }
+          </div>
+          
+          <div class="ocean-creature-grid ocean-open-grid immersive-fish-layer" id="oceanCreatureGrid">
+              @foreach (var art in Model.Select((item, index) => new { item, index })) { 
+                  <article class="released-creature depth-creature @(art.item.Template.Type == "Fish" ? "fish-creature" : "")" data-creature-index="@art.index">
+                      <img src="@art.item.ImagePath" alt="@(art.item.Title ?? art.item.Template.Name)" />
+                      <div class="creature-caption"><strong>@(art.item.Title ?? art.item.Template.Name)</strong><span>vẽ bởi @art.item.User.DisplayName</span></div>
+                  </article> 
+              }
+          </div>
+          
+          @if (!Model.Any()) { 
+              <div class="ocean-empty ocean-empty-icon flex items-center justify-center w-full h-full text-white/50 text-6xl" aria-label="Đại dương đang chờ sinh vật đầu tiên">
+                  Chưa có sinh vật nào 🐠
+              </div> 
+          }
+          
+          <!-- Hiding drag hint visually or keep it subtle to match Figma clean look? The user said keep how it works. I'll make it match the image if possible, or just leave it. -->
+          <div class="ocean-drag-hint" style="display: none;"><span>↔</span> Kéo ngang để xem quanh hồ <b id="oceanFrameLabel">01 / 04</b></div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</div>

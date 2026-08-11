@@ -1,0 +1,10 @@
+{
+  "description": "Create, color, and submit custom fish designs to a shared virtual ocean where approved artworks swim, fostering creativity and community engagement.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
