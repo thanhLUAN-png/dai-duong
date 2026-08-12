@@ -26,9 +26,9 @@ if (canvas) {
     canvas.style.backgroundColor = '#ffffff'; 
     const buffer = document.createElement('canvas'); buffer.width = canvas.width; buffer.height = canvas.height; const bufferContext = buffer.getContext('2d'); 
     const scale = Math.min((canvas.width - 100) / rawOutline.naturalWidth, (canvas.height - 100) / rawOutline.naturalHeight);
-    const w = rawOutline.naturalWidth * scale; const h = rawOutline.naturalHeight * scale;
-    const x = (canvas.width - w) / 2; const y = (canvas.height - h) / 2;
-    bufferContext.drawImage(rawOutline, x, y, w, h); const pixels = bufferContext.getImageData(0, 0, buffer.width, buffer.height); for (let i = 0; i < pixels.data.length; i += 4) if (pixels.data[i] > 200 && pixels.data[i + 1] > 200 && pixels.data[i + 2] > 200) pixels.data[i + 3] = 0; bufferContext.putImageData(pixels, 0, 0); fishOutline = new Image(); fishOutline.onload = outline; fishOutline.src = buffer.toDataURL('image/png');
+    const scaledW = rawOutline.naturalWidth * scale; const scaledH = rawOutline.naturalHeight * scale;
+    const x = (canvas.width - scaledW) / 2; const y = (canvas.height - scaledH) / 2;
+    bufferContext.drawImage(rawOutline, x, y, scaledW, scaledH); const pixels = bufferContext.getImageData(0, 0, buffer.width, buffer.height); for (let i = 0; i < pixels.data.length; i += 4) if (pixels.data[i] > 200 && pixels.data[i + 1] > 200 && pixels.data[i + 2] > 200) pixels.data[i + 3] = 0; bufferContext.putImageData(pixels, 0, 0); fishOutline = new Image(); fishOutline.onload = outline; fishOutline.src = buffer.toDataURL('image/png');
     const sourcePixels = pixels; 
     const w = canvas.width, h = canvas.height, total = w * h;
     const wall = new Uint8Array(total), dilatedWall = new Uint8Array(total);
