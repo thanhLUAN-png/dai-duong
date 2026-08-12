@@ -64,6 +64,23 @@
   .template-card:hover .card-art {
     transform: scale(1.12) rotate(5deg);
   }
+  .paper-container {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    position: relative;
+    z-index: 1;
+  }
+  .template-card:hover .paper-container {
+    transform: scale(1.15) rotate(4deg);
+  }
 </style>
 
 <div class="relative min-h-screen" style="background: #e0f7ff; font-family: 'Nunito', sans-serif;">
@@ -228,8 +245,8 @@
                     <div style="position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);bottom:-20px;left:10px;"></div>
                     @if (item.Type == "Fish" || item.Type == "Fish2" || item.Type == "Jellyfish")
                     {
-                        <div class="card-art" style="position:relative;z-index:1;width:130px;height:130px;display:flex;align-items:center;justify-content:center;">
-                          <img src="@item.OutlineImagePath" alt="@item.Name" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.15));" />
+                        <div class="paper-container">
+                          <img src="@item.OutlineImagePath" alt="@item.Name" style="max-width:100%;max-height:100%;object-fit:contain;" />
                         </div>
                     }
                     else
