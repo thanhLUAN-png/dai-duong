@@ -11,36 +11,54 @@ if (canvas) {
     ctx.beginPath(); ctx.save(); ctx.translate(430, 290);
     if(type === 'Fish') { ctx.ellipse(-15,0,155,92,0,0,Math.PI*2); ctx.moveTo(125,-25);ctx.lineTo(245,-115);ctx.quadraticCurveTo(210,0,245,115);ctx.lineTo(125,25);ctx.closePath();ctx.moveTo(-40,-75);ctx.ellipse(-10,-105,55,24,0,0,Math.PI*2);ctx.moveTo(-30,75);ctx.ellipse(10,98,40,18,0,0,Math.PI*2); }
     else if(type === 'Turtle') { ctx.ellipse(0,0,145,115,0,0,Math.PI*2);ctx.moveTo(181,0);ctx.arc(145,0,36,0,Math.PI*2);[-1,1].forEach(s=>{ctx.moveTo(s*138,-105);ctx.ellipse(s*90,-105,48,24,s*.5,0,Math.PI*2);ctx.moveTo(s*138,105);ctx.ellipse(s*90,105,48,24,-s*.5,0,Math.PI*2)}); }
-    else { for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,r=i%2?60:190;let x=Math.cos(a)*r,y=Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath(); }
+    else if(type === 'Starfish') { for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,r=i%2?60:190;let x=Math.cos(a)*r,y=Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath(); }
     ctx.restore();
   };
   const drawOutline = (clear = false) => {
     if (clear) ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (type === 'Fish' && fishOutline) { const ratio = Math.min(500 / fishOutline.naturalWidth, 340 / fishOutline.naturalHeight); const width = fishOutline.naturalWidth * ratio, height = fishOutline.naturalHeight * ratio; ctx.drawImage(fishOutline, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height); return; }
+    if ((type === 'Fish' || type === 'Jellyfish') && fishOutline) { ctx.drawImage(fishOutline, 0, 0, canvas.width, canvas.height); return; }
     ctx.strokeStyle = '#154f68'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; silhouette(); ctx.stroke();
     if(type === 'Fish') { ctx.beginPath();ctx.arc(300,260,10,0,Math.PI*2);ctx.stroke(); }
     if(type === 'Starfish') { ctx.beginPath();ctx.arc(430,290,60,0,Math.PI*2);ctx.stroke(); }
   };
   const outline = () => { drawOutline(true); history=[ctx.getImageData(0,0,canvas.width,canvas.height)]; redoHistory=[]; }; outline();
-  if (type === 'Fish' && canvas.dataset.templateImage) { const rawOutline = new Image(); rawOutline.onload = () => { const ratio = Math.min(500 / rawOutline.naturalWidth, 340 / rawOutline.naturalHeight); const width = rawOutline.naturalWidth * ratio, height = rawOutline.naturalHeight * ratio, left = (canvas.width - width) / 2, top = (canvas.height - height) / 2;
-    const buffer = document.createElement('canvas'); buffer.width = rawOutline.naturalWidth; buffer.height = rawOutline.naturalHeight; const bufferContext = buffer.getContext('2d'); bufferContext.drawImage(rawOutline, 0, 0); const pixels = bufferContext.getImageData(0, 0, buffer.width, buffer.height); for (let i = 0; i < pixels.data.length; i += 4) if (pixels.data[i] > 235 && pixels.data[i + 1] > 235 && pixels.data[i + 2] > 235) pixels.data[i + 3] = 0; bufferContext.putImageData(pixels, 0, 0); fishOutline = new Image(); fishOutline.onload = outline; fishOutline.src = buffer.toDataURL('image/png');
-    const maskSource = document.createElement('canvas'); maskSource.width = canvas.width; maskSource.height = canvas.height; const maskSourceContext = maskSource.getContext('2d'); maskSourceContext.drawImage(rawOutline, left, top, width, height); const sourcePixels = maskSourceContext.getImageData(0, 0, canvas.width, canvas.height); const total = canvas.width * canvas.height, outside = new Uint8Array(total), queue = new Int32Array(total); let head = 0, tail = 0;
-    // Nét đen của mẫu là bức tường cứng: flood-fill không thể rò qua viền.
-    const isWall = index => { const pixel = index * 4; return sourcePixels.data[pixel + 3] > 80 && sourcePixels.data[pixel] < 70 && sourcePixels.data[pixel + 1] < 70 && sourcePixels.data[pixel + 2] < 70; };
-    const isOpen = index => !isWall(index);
+  if ((type === 'Fish' || type === 'Jellyfish') && canvas.dataset.templateImage) { const rawOutline = new Image(); rawOutline.onload = () => { 
+    canvas.width = rawOutline.naturalWidth; canvas.height = rawOutline.naturalHeight;
+    canvas.style.backgroundColor = '#ffffff'; 
+    const buffer = document.createElement('canvas'); buffer.width = canvas.width; buffer.height = canvas.height; const bufferContext = buffer.getContext('2d'); bufferContext.drawImage(rawOutline, 0, 0); const pixels = bufferContext.getImageData(0, 0, buffer.width, buffer.height); for (let i = 0; i < pixels.data.length; i += 4) if (pixels.data[i] > 200 && pixels.data[i + 1] > 200 && pixels.data[i + 2] > 200) pixels.data[i + 3] = 0; bufferContext.putImageData(pixels, 0, 0); fishOutline = new Image(); fishOutline.onload = outline; fishOutline.src = buffer.toDataURL('image/png');
+    const sourcePixels = pixels; 
+    const w = canvas.width, h = canvas.height, total = w * h;
+    const wall = new Uint8Array(total), dilatedWall = new Uint8Array(total);
+    for (let i = 0; i < total; i++) { if (sourcePixels.data[i * 4 + 3] > 0) wall[i] = 1; }
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (wall[y * w + x]) {
+          for (let dy = -5; dy <= 5; dy++) {
+            for (let dx = -5; dx <= 5; dx++) {
+              if (dx*dx + dy*dy <= 25) {
+                const nx = x + dx, ny = y + dy;
+                if (nx >= 0 && nx < w && ny >= 0 && ny < h) dilatedWall[ny * w + nx] = 1;
+              }
+            }
+          }
+        }
+      }
+    }
+    const outside = new Uint8Array(total), queue = new Int32Array(total); let head = 0, tail = 0;
+    const isOpen = index => !dilatedWall[index];
     const addOutside = index => { if (!outside[index] && isOpen(index)) { outside[index] = 1; queue[tail++] = index; } };
-    for (let x = 0; x < canvas.width; x++) { addOutside(x); addOutside((canvas.height - 1) * canvas.width + x); }
-    for (let y = 0; y < canvas.height; y++) { addOutside(y * canvas.width); addOutside(y * canvas.width + canvas.width - 1); }
-    while (head < tail) { const current = queue[head++], x = current % canvas.width, y = Math.floor(current / canvas.width); if (x) addOutside(current - 1); if (x < canvas.width - 1) addOutside(current + 1); if (y) addOutside(current - canvas.width); if (y < canvas.height - 1) addOutside(current + canvas.width); }
-    // Chỉ giữ vùng nằm BÊN TRONG viền. Bất kỳ nét màu nào lố ra ngoài đều
-    // bị mask xóa sau mỗi lần vẽ; viền đen được drawOutline() vẽ lại phía trên.
-    const maskPixels = new ImageData(canvas.width, canvas.height); for (let index = 0; index < total; index++) if (isOpen(index) && !outside[index]) { const pixel = index * 4; maskPixels.data[pixel] = 255; maskPixels.data[pixel + 1] = 255; maskPixels.data[pixel + 2] = 255; maskPixels.data[pixel + 3] = 255; }
-    fishMask = document.createElement('canvas'); fishMask.width = canvas.width; fishMask.height = canvas.height; fishMask.getContext('2d').putImageData(maskPixels, 0, 0);
+    for (let x = 0; x < w; x++) { addOutside(x); addOutside((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { addOutside(y * w); addOutside(y * w + w - 1); }
+    while (head < tail) { const current = queue[head++], x = current % w, y = Math.floor(current / w); if (x) addOutside(current - 1); if (x < w - 1) addOutside(current + 1); if (y) addOutside(current - w); if (y < h - 1) addOutside(current + w); }
+    let insideCount = 0;
+    const maskPixels = new ImageData(w, h); 
+    for (let index = 0; index < total; index++) if (!outside[index]) { const pixel = index * 4; maskPixels.data[pixel] = 255; maskPixels.data[pixel + 1] = 255; maskPixels.data[pixel + 2] = 255; maskPixels.data[pixel + 3] = 255; insideCount++; }
+    if (insideCount > 1000) { fishMask = document.createElement('canvas'); fishMask.width = w; fishMask.height = h; fishMask.getContext('2d').putImageData(maskPixels, 0, 0); }
   }; rawOutline.src = canvas.dataset.templateImage; }
-  const applyFishMask = () => { if (type === 'Fish' && fishMask) { ctx.save(); ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(fishMask, 0, 0); ctx.restore(); drawOutline(); } };
+  const applyFishMask = () => { if (type === 'Fish' || type === 'Jellyfish') { if (fishMask) { ctx.save(); ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(fishMask, 0, 0); ctx.restore(); } drawOutline(); } };
   const point=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};
-  const start=e=>{drawing=true; ctx.save(); if (type !== 'Fish' || !fishMask) { silhouette(); ctx.clip(); } const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};
-  const move=e=>{if(!drawing)return;const p=point(e);ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.strokeStyle=color;ctx.lineWidth=size;ctx.lineTo(p.x,p.y);ctx.stroke();applyFishMask();ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  const start=e=>{drawing=true; ctx.save(); if (type !== 'Fish' && type !== 'Jellyfish') { silhouette(); ctx.clip(); } const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};
+  const move=e=>{if(!drawing)return;const p=point(e);ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.strokeStyle=color;ctx.lineWidth=size*(canvas.width/860);ctx.lineTo(p.x,p.y);ctx.stroke();applyFishMask();ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.beginPath();ctx.moveTo(p.x,p.y);};
   const end=()=>{if(drawing){ctx.restore();applyFishMask();drawOutline();history.push(ctx.getImageData(0,0,canvas.width,canvas.height));redoHistory=[];}drawing=false;ctx.globalCompositeOperation='source-over'};
   canvas.addEventListener('pointerdown',start);canvas.addEventListener('pointermove',move);window.addEventListener('pointerup',end);
   document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{color=b.dataset.color;erasing=false}); document.getElementById('brushSize').oninput=e=>size=e.target.value;

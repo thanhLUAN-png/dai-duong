@@ -126,7 +126,7 @@
     }
   </div>
 
-  <!-- Swimming fish layer (approved artwork) -->
+  <!-- Swimming fish layer moved outside wrappers -->
   @{
       var homeApprovedArt = ViewBag.ApprovedArt as List<string> ?? new List<string>();
       var homeFishImages  = new List<string>();
@@ -134,14 +134,6 @@
           homeFishImages.Add(homeApprovedArt.Count > hf ? homeApprovedArt[hf] : "/images/templates/fish-template.png");
       }
   }
-  <div id="homeFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;">
-    @for (int fi = 0; fi < homeFishImages.Count; fi++)
-    {
-        <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
-          <img src="@homeFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
-        </article>
-    }
-  </div>
 
   <!-- Hero -->
   <section class="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-20 pb-16">
@@ -195,7 +187,6 @@
       <div class="text-center">
         <div class="text-3xl font-black" style="color: #1488c6;">@artistCount</div>
         <div class="text-sm font-bold" style="color: #4a7fa5;">Nghệ sĩ tham gia</div>
-      </div>
       </div>
     </div>
   </section>
@@ -350,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const vertPhase = realSeconds * (0.17  + (state.seed % 0.03))  + state.seed;
 
       const x = wrap(W * 0.5 + Math.sin(pathPhase) * W * 0.43 + state.seed * W * 0.11, W);
-      const y = H * (0.42 + Math.sin(vertPhase) * 0.18);
+      const y = H * (0.5 + Math.sin(vertPhase) * 0.35);
 
       const face = Math.cos(pathPhase) >= 0 ? -1 : 1;
       const wave  = Math.sin(time / 1000 * 1.75 + state.phase);
@@ -376,3 +367,13 @@ document.addEventListener('DOMContentLoaded', function() {
   requestAnimationFrame(animate);
 });
 </script>
+
+<!-- Fish layer: OUTSIDE all wrappers so z-index is global -->
+<div id="homeFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;">
+  @for (int fi = 0; fi < homeFishImages.Count; fi++)
+  {
+      <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
+        <img src="@homeFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
+      </article>
+  }
+</div>
