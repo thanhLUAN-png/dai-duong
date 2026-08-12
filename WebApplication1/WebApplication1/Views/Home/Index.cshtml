@@ -38,8 +38,9 @@
 }
 </style>
 
-<div class="relative min-h-screen" style="background: linear-gradient(160deg, #e0f7ff 0%, #b8e4f9 52%, #d0f0ea 100%); font-family: 'Nunito', sans-serif;">
+<div class="relative min-h-screen" style="background: #e0f7ff; font-family: 'Nunito', sans-serif;">
 
+<div style="background: linear-gradient(160deg, #b8e4f9 0%, #89d4f5 100%);">
   <!-- Navbar -->
   <nav style="background: linear-gradient(90deg, #0b2545 0%, #1488c6 100%); box-shadow: 0 2px 20px rgba(11,37,69,0.3);" class="sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -150,8 +151,13 @@
         <div class="text-3xl font-black" style="color: #1488c6;">@artistCount</div>
         <div class="text-sm font-bold" style="color: #4a7fa5;">Nghệ sĩ tham gia</div>
       </div>
+      </div>
     </div>
   </section>
+
+  <!-- Đường phân cách ngang giữa hai mảng màu -->
+  <div class="w-full relative z-10" style="height: 4px; background: rgba(20,136,198,0.4);"></div>
+</div>
 
   <!-- Fish Template Strip -->
   <section class="relative z-10 py-12 overflow-hidden">
@@ -185,8 +191,8 @@
   </section>
 
   <!-- How it works -->
-  <section class="relative z-10 py-16 px-4">
-    <div class="max-w-4xl mx-auto">
+  <section class="relative z-10 pt-16 px-4" style="background: linear-gradient(to bottom, transparent 0%, transparent 80%, rgba(20,136,198,0.4) 80%, rgba(20,136,198,0.4) calc(80% + 4px), #b8e4f9 calc(80% + 4px), #b8e4f9 100%);">
+    <div class="max-w-4xl mx-auto pb-12">
       <h2 class="text-center text-3xl font-black mb-12" style="color: #0b2545;">
         Cách chơi đơn giản lắm! 🐟
       </h2>
@@ -194,7 +200,7 @@
         @{
             var steps = new[] {
                 new { Step="01", Icon="🎨", Title="Chọn mẫu & Tô màu",  Desc="Chọn loài sinh vật biển yêu thích. Chọn màu sắc và tô từng bộ phận theo ý thích." },
-                new { Step="02", Icon="📬", Title="Gửi tác phẩm",        Desc="Đặt tên cho con cá và gửi tác phẩm. Chờ Admin duyệt rồi cá sẽ được thả vào biển." },
+                new { Step="02", Icon="📬", Title="Gửi tác phẩm",        Desc="Đặt tên cho con cá và gửi tác phẩm. Chờ duyệt rồi cá sẽ được thả vào biển." },
                 new { Step="03", Icon="🌊", Title="Thả vào Đại Dương",   Desc="Con cá của bạn sẽ bơi trong đại dương cùng tất cả mọi người. Mọi người đều có thể ngắm!" },
             };
         }
@@ -211,37 +217,38 @@
     </div>
   </section>
 
-  <!-- CTA (chỉ hiện khi chưa đăng nhập) -->
-  @if (!signedIn)
-  {
-      <section class="relative z-10 py-16 px-4 text-center">
-        <div class="max-w-2xl mx-auto p-10 rounded-3xl" style="background: linear-gradient(135deg, #0b2545, #1488c6);">
-          <div class="text-5xl mb-4">🐠</div>
-          <h2 class="text-3xl font-black text-white mb-4">Sẵn sàng thả cá vào biển?</h2>
-          <p class="font-semibold mb-8" style="color: rgba(255,255,255,0.8);">Đăng ký miễn phí, vẽ ngay, thả cá của bạn cùng cộng đồng.</p>
-          <div class="flex gap-4 justify-center">
-            <a asp-controller="Account" asp-action="Register"
-               class="px-8 py-3 rounded-2xl font-black text-lg"
-               style="background: #ff6b6b; color: white; text-decoration: none;">
-              Tạo tài khoản miễn phí
-            </a>
-            <a asp-controller="Account" asp-action="Login"
-               class="px-8 py-3 rounded-2xl font-black text-lg"
-               style="background: rgba(255,255,255,0.15); color: white; text-decoration: none;">
-              Đăng nhập
-            </a>
+  <div class="w-full relative z-10 flex flex-col" style="background: #b8e4f9;">
+    <!-- CTA (chỉ hiện khi chưa đăng nhập) -->
+    @if (!signedIn)
+    {
+        <section class="relative z-10 py-16 px-4 text-center">
+          <div class="max-w-2xl mx-auto p-10 rounded-3xl" style="background: linear-gradient(135deg, #0b2545, #1488c6);">
+            <div class="text-5xl mb-4">🐠</div>
+            <h2 class="text-3xl font-black text-white mb-4">Sẵn sàng thả cá vào biển?</h2>
+            <p class="font-semibold mb-8" style="color: rgba(255,255,255,0.8);">Đăng ký miễn phí, vẽ ngay, thả cá của bạn cùng cộng đồng.</p>
+            <div class="flex gap-4 justify-center">
+              <a asp-controller="Account" asp-action="Register"
+                 class="px-8 py-3 rounded-2xl font-black text-lg"
+                 style="background: #ff6b6b; color: white; text-decoration: none;">
+                Tạo tài khoản miễn phí
+              </a>
+              <a asp-controller="Account" asp-action="Login"
+                 class="px-8 py-3 rounded-2xl font-black text-lg"
+                 style="background: rgba(255,255,255,0.15); color: white; text-decoration: none;">
+                Đăng nhập
+              </a>
+            </div>
           </div>
-        </div>
-      </section>
-  }
+        </section>
+    }
 
-  <!-- Sóng nước + Footer -->
-  <div class="relative w-full overflow-hidden mt-8" style="height: 180px;">
-    <!-- Sóng cuộn ngang -->
-    <div class="pointer-events-none absolute bottom-0 left-0" 
-         style="width: 200%; height: 100%; opacity: 0.85; 
-                background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 120%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0,40 C150,10 350,70 600,40 C850,10 1050,70 1200,40 L1200,120 L0,120 Z%22 fill=%22%231488c6%22/%3E%3C/svg%3E'); 
-                background-size: 50% 100%; animation: wave-anim 8s linear infinite;">
+    <!-- Sóng nước + Footer -->
+    <div class="relative w-full overflow-hidden mt-8" style="height: 180px;">
+      <!-- Sóng cuộn ngang -->
+      <div class="pointer-events-none absolute bottom-0 left-0" 
+           style="width: 200%; height: 100%; opacity: 0.85; 
+                  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 120%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0,40 C150,10 350,70 600,40 C850,10 1050,70 1200,40 L1200,120 L0,120 Z%22 fill=%22%231488c6%22/%3E%3C/svg%3E'); 
+                  background-size: 50% 100%; animation: wave-anim 8s linear infinite;">
     </div>
     
     <!-- Dòng text footer nằm đè lên phần thân đặc của sóng -->
@@ -249,5 +256,7 @@
       🐠 Biển Của Chúng Mình — Nơi mỗi con cá mang một câu chuyện 🌊
     </footer>
   </div>
+  
+  </div> <!-- Đóng khối CTA / Footer màu đậm -->
 
 </div>
