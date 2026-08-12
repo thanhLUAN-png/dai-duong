@@ -126,6 +126,23 @@
     }
   </div>
 
+  <!-- Swimming fish layer (approved artwork) -->
+  @{
+      var homeApprovedArt = ViewBag.ApprovedArt as List<string> ?? new List<string>();
+      var homeFishImages  = new List<string>();
+      for (int hf = 0; hf < 4; hf++) {
+          homeFishImages.Add(homeApprovedArt.Count > hf ? homeApprovedArt[hf] : "/images/templates/fish-template.png");
+      }
+  }
+  <div id="homeFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;">
+    @for (int fi = 0; fi < homeFishImages.Count; fi++)
+    {
+        <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
+          <img src="@homeFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
+        </article>
+    }
+  </div>
+
   <!-- Hero -->
   <section class="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-20 pb-16">
     <!-- Badge -->
@@ -306,3 +323,56 @@
   </div> <!-- Đóng khối CTA / Footer màu đậm -->
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const layer = document.getElementById('homeFishLayer');
+  if (!layer) return;
+  const fishes = [...layer.querySelectorAll('.fish-creature')];
+  if (!fishes.length) return;
+
+  const fishEpoch = Date.UTC(2026, 0, 1, 0, 0, 0);
+  const states = fishes.map((fish, index) => ({
+    fish,
+    seed:  index * 2.398 + 0.73,
+    phase: index * 1.713 + 0.41,
+  }));
+
+  function wrap(value, size) { return ((value % size) + size) % size; }
+
+  function animate(time) {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const realSeconds = (Date.now() - fishEpoch) / 1000;
+
+    states.forEach(state => {
+      const pathPhase = realSeconds * (0.043 + (state.seed % 0.009)) + state.phase;
+      const vertPhase = realSeconds * (0.17  + (state.seed % 0.03))  + state.seed;
+
+      const x = wrap(W * 0.5 + Math.sin(pathPhase) * W * 0.43 + state.seed * W * 0.11, W);
+      const y = H * (0.42 + Math.sin(vertPhase) * 0.18);
+
+      const face = Math.cos(pathPhase) >= 0 ? -1 : 1;
+      const wave  = Math.sin(time / 1000 * 1.75 + state.phase);
+      const tilt  = wave * 1.7;
+      const bobY  = wave * 8;
+
+      const edgeDist = Math.min(x, W - x) / 150;
+      const opacity  = Math.min(1, edgeDist) * 0.5;
+
+      state.fish.style.setProperty('left',      `${x}px`,                             'important');
+      state.fish.style.setProperty('top',       `${y + bobY}px`,                      'important');
+      state.fish.style.setProperty('transform', `scaleX(${face}) rotate(${tilt}deg)`, 'important');
+      state.fish.style.setProperty('opacity',   `${opacity}`,                         'important');
+
+      const body = state.fish.querySelector('.fish-body-layer') || state.fish.querySelector('img');
+      const glow = 0.88 + (wave + 1) * 0.06;
+      if (body) body.style.filter = `brightness(${glow}) saturate(1.18) drop-shadow(0 10px 9px rgba(0,25,48,0.48))`;
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+});
+</script>
