@@ -16,13 +16,13 @@ if (canvas) {
   };
   const drawOutline = (clear = false) => {
     if (clear) ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if ((type === 'Fish' || type === 'Jellyfish') && fishOutline) { ctx.drawImage(fishOutline, 0, 0, canvas.width, canvas.height); return; }
+    if ((type === 'Fish' || type === 'Fish2' || type === 'Jellyfish') && fishOutline) { ctx.drawImage(fishOutline, 0, 0, canvas.width, canvas.height); return; }
     ctx.strokeStyle = '#154f68'; ctx.lineWidth = 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; silhouette(); ctx.stroke();
     if(type === 'Fish') { ctx.beginPath();ctx.arc(300,260,10,0,Math.PI*2);ctx.stroke(); }
     if(type === 'Starfish') { ctx.beginPath();ctx.arc(430,290,60,0,Math.PI*2);ctx.stroke(); }
   };
   const outline = () => { drawOutline(true); history=[ctx.getImageData(0,0,canvas.width,canvas.height)]; redoHistory=[]; }; outline();
-  if ((type === 'Fish' || type === 'Jellyfish') && canvas.dataset.templateImage) { const rawOutline = new Image(); rawOutline.onload = () => { 
+  if ((type === 'Fish' || type === 'Fish2' || type === 'Jellyfish') && canvas.dataset.templateImage) { const rawOutline = new Image(); rawOutline.onload = () => { 
     canvas.width = rawOutline.naturalWidth; canvas.height = rawOutline.naturalHeight;
     canvas.style.backgroundColor = '#ffffff'; 
     const buffer = document.createElement('canvas'); buffer.width = canvas.width; buffer.height = canvas.height; const bufferContext = buffer.getContext('2d'); bufferContext.drawImage(rawOutline, 0, 0); const pixels = bufferContext.getImageData(0, 0, buffer.width, buffer.height); for (let i = 0; i < pixels.data.length; i += 4) if (pixels.data[i] > 200 && pixels.data[i + 1] > 200 && pixels.data[i + 2] > 200) pixels.data[i + 3] = 0; bufferContext.putImageData(pixels, 0, 0); fishOutline = new Image(); fishOutline.onload = outline; fishOutline.src = buffer.toDataURL('image/png');
@@ -55,9 +55,9 @@ if (canvas) {
     for (let index = 0; index < total; index++) if (!outside[index]) { const pixel = index * 4; maskPixels.data[pixel] = 255; maskPixels.data[pixel + 1] = 255; maskPixels.data[pixel + 2] = 255; maskPixels.data[pixel + 3] = 255; insideCount++; }
     if (insideCount > 1000) { fishMask = document.createElement('canvas'); fishMask.width = w; fishMask.height = h; fishMask.getContext('2d').putImageData(maskPixels, 0, 0); }
   }; rawOutline.src = canvas.dataset.templateImage; }
-  const applyFishMask = () => { if (type === 'Fish' || type === 'Jellyfish') { if (fishMask) { ctx.save(); ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(fishMask, 0, 0); ctx.restore(); } drawOutline(); } };
+  const applyFishMask = () => { if (type === 'Fish' || type === 'Fish2' || type === 'Jellyfish') { if (fishMask) { ctx.save(); ctx.globalCompositeOperation = 'destination-in'; ctx.drawImage(fishMask, 0, 0); ctx.restore(); } drawOutline(); } };
   const point=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}};
-  const start=e=>{drawing=true; ctx.save(); if (type !== 'Fish' && type !== 'Jellyfish') { silhouette(); ctx.clip(); } const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};
+  const start=e=>{drawing=true; ctx.save(); if (type !== 'Fish' && type !== 'Fish2' && type !== 'Jellyfish') { silhouette(); ctx.clip(); } const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};
   const move=e=>{if(!drawing)return;const p=point(e);ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.strokeStyle=color;ctx.lineWidth=size*(canvas.width/860);ctx.lineTo(p.x,p.y);ctx.stroke();applyFishMask();ctx.globalCompositeOperation=erasing?'destination-out':'source-over';ctx.beginPath();ctx.moveTo(p.x,p.y);};
   const end=()=>{if(drawing){ctx.restore();applyFishMask();drawOutline();history.push(ctx.getImageData(0,0,canvas.width,canvas.height));redoHistory=[];}drawing=false;ctx.globalCompositeOperation='source-over'};
   canvas.addEventListener('pointerdown',start);canvas.addEventListener('pointermove',move);window.addEventListener('pointerup',end);
