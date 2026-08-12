@@ -27,6 +27,29 @@ public class AdminController(OceanDbContext db) : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveAll()
+    {
+        var pending = db.ArtworkSubmissions.Where(x => x.Status == "Pending");
+        var now = DateTime.UtcNow;
+        await pending.ForEachAsync(x => { x.Status = "Approved"; x.ReviewedAt = now; });
+        await db.SaveChangesAsync();
+        TempData["OceanMessage"] = "Đã duyệt tất cả tác phẩm đang chờ.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectAll()
+    {
+        var pending = db.ArtworkSubmissions.Where(x => x.Status == "Pending");
+        var now = DateTime.UtcNow;
+        await pending.ForEachAsync(x => { x.Status = "Rejected"; x.ReviewedAt = now; });
+        await db.SaveChangesAsync();
+        TempData["OceanMessage"] = "Đã từ chối tất cả tác phẩm đang chờ.";
+        return RedirectToAction(nameof(Index));
+    }
+
+
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveFromOcean(int id)
     {
         var submission = await db.ArtworkSubmissions.FindAsync(id);
@@ -63,6 +86,39 @@ public class AdminController(OceanDbContext db) : Controller
         }
         submission.Status = "Approved"; submission.ReviewedAt ??= DateTime.UtcNow; await db.SaveChangesAsync();
         TempData["OceanMessage"] = "Đã hoàn tác — cá đã trở lại bể.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> RestoreToPending(int id)
+    {
+        var submission = await db.ArtworkSubmissions.FindAsync(id);
+        if (submission is null) return NotFound();
+        submission.Status = "Pending";
+        submission.ReviewNote = null;
+        await db.SaveChangesAsync();
+        TempData["OceanMessage"] = "Đã khôi phục tác phẩm về hàng chờ duyệt.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePermanently(int id)
+    {
+        var submission = await db.ArtworkSubmissions.FindAsync(id);
+        if (submission is null) return NotFound();
+        db.ArtworkSubmissions.Remove(submission);
+        await db.SaveChangesAsync();
+        TempData["OceanMessage"] = "Đã xóa vĩnh viễn tác phẩm.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteAllTrash()
+    {
+        var trash = db.ArtworkSubmissions.Where(x => x.Status == "RemovedFromOcean" || x.Status == "Rejected");
+        db.ArtworkSubmissions.RemoveRange(trash);
+        await db.SaveChangesAsync();
+        TempData["OceanMessage"] = "Đã xóa vĩnh viễn toàn bộ thùng rác.";
         return RedirectToAction(nameof(Index));
     }
 }

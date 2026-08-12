@@ -1,17 +1,397 @@
 @model WebApplication1.ViewModels.AdminDashboardViewModel
-@{ ViewData["Title"] = "Quản trị đại dương"; int? undoId = TempData["UndoOceanId"] is int savedUndoId ? savedUndoId : null; }
-<main class="studio-page">
-    <nav class="studio-nav"><a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">◒</span> quản trị đại dương</a><div><a asp-controller="Ocean" asp-action="Index">Xem bể cá</a></div></nav>
-    <section class="admin-page">
-        <p class="eyebrow">Quản trị</p><h1>Đại dương của cộng đồng</h1><p class="admin-subtitle">Duyệt tác phẩm, quản lý cá trong bể và thùng rác.</p>
-        @if (TempData["OceanMessage"] is string message) { <div class="ocean-admin-message"><span>@message</span>@if (undoId.HasValue) { <form asp-action="UndoRemoveFromOcean" method="post"><input type="hidden" name="id" value="@undoId.Value" /><button type="submit">↶ Hoàn tác</button></form> }</div> }
-        <div class="admin-tabs" role="tablist"><button type="button" class="active" data-admin-tab="pending">Chờ duyệt <span>@Model.Pending.Count</span></button><button type="button" data-admin-tab="ocean">Đã duyệt <span>@Model.InOcean.Count</span></button><button type="button" data-admin-tab="trash">Thùng rác <span>@Model.Trash.Count</span></button></div>
+@{
+    ViewData["Title"] = "Trang Quản Trị";
+    var userName = User.Identity?.Name ?? "Quản trị viên";
+    int? undoId = TempData["UndoOceanId"] is int savedUndoId ? savedUndoId : null;
+}
 
-        <section class="admin-panel active" data-admin-panel="pending"><h2>Tác phẩm chờ duyệt</h2><div class="review-grid">@foreach (var art in Model.Pending) { <article class="review-card"><img src="@art.ImagePath" alt="Tác phẩm của @art.User.DisplayName" /><div><span>@art.User.DisplayName · @art.Template.Name</span><h2>@(art.Title ?? "Chưa đặt tên")</h2><form asp-action="Review" method="post"><input type="hidden" name="id" value="@art.Id" /><input name="note" placeholder="Lời nhắn (không bắt buộc)" /><button name="approve" value="true" class="approve">Duyệt & thả vào biển</button><button name="approve" value="false" class="reject">Từ chối</button></form></div></article> }</div>@if (!Model.Pending.Any()) { <p class="empty-state">Không có tác phẩm nào đang chờ duyệt.</p> }</section>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+  * { box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; margin: 0; }
 
-        <section class="admin-panel" data-admin-panel="ocean"><h2>Cá đã duyệt trong bể</h2><p>Mỗi cá ở đây đang hiển thị trong trang Đại dương.</p><div class="ocean-fish-admin-grid">@foreach (var art in Model.InOcean) { <article class="ocean-fish-admin-card"><img src="@art.ImagePath" alt="@(art.Title ?? art.Template.Name)" /><div><span>@art.User.DisplayName · @art.Template.Name</span><strong>@(art.Title ?? "Cá chưa đặt tên")</strong><form asp-action="RemoveFromOcean" method="post"><input type="hidden" name="id" value="@art.Id" /><button type="submit">Đưa vào thùng rác</button></form></div></article> }</div>@if (!Model.InOcean.Any()) { <p class="empty-state">Chưa có cá nào trong bể.</p> }</section>
+  @@keyframes wave-anim {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @@keyframes fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @@keyframes bubble-rise {
+    0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(180,230,255,0.3));
+    border: 1px solid rgba(255,255,255,0.6);
+    animation: bubble-rise linear infinite;
+    pointer-events: none;
+  }
+  .fade-up { animation: fade-up .5s cubic-bezier(.2,.8,.2,1) both; }
 
-        <section class="admin-panel" data-admin-panel="trash"><h2>Thùng rác</h2><p>Cá đưa ra khỏi bể và tác phẩm bị từ chối nằm ở đây.</p><div class="ocean-fish-admin-grid">@foreach (var art in Model.Trash) { <article class="ocean-fish-admin-card"><img src="@art.ImagePath" alt="@(art.Title ?? art.Template.Name)" /><div><span>@art.User.DisplayName · @art.Template.Name</span><strong>@(art.Title ?? "Tác phẩm chưa đặt tên")</strong><em>@(art.Status == "RemovedFromOcean" ? "Đã đưa ra khỏi bể" : "Đã từ chối")</em>@if (art.Status == "RemovedFromOcean") { <form asp-action="UndoRemoveFromOcean" method="post"><input type="hidden" name="id" value="@art.Id" /><button class="restore" type="submit">↶ Khôi phục vào bể</button></form> }</div></article> }</div>@if (!Model.Trash.Any()) { <p class="empty-state">Thùng rác đang trống.</p> }</section>
-    </section>
-</main>
-@section Scripts { <script>document.querySelectorAll('[data-admin-tab]').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('[data-admin-tab]').forEach(item => item.classList.toggle('active', item === button)); document.querySelectorAll('[data-admin-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.adminPanel === button.dataset.adminTab)); }));</script> }
+  .tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 14px;
+    font-weight: 800; font-size: 14px; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.6); color: #4a7fa5;
+    transition: all .2s;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.85); color: #0b2545; }
+  .tab-btn.active { background: #0b2545; color: white; box-shadow: 0 6px 20px rgba(11,37,69,0.25); }
+  .tab-btn .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 10px; font-size: 11px; font-weight: 900;
+  }
+  .tab-btn.active .badge { background: rgba(255,255,255,0.2); color: white; }
+  .tab-btn:not(.active) .badge { background: rgba(11,37,69,0.1); color: #0b2545; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .art-card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(16px);
+    border-radius: 24px;
+    border: 2px solid rgba(20,136,198,0.1);
+    box-shadow: 0 8px 32px rgba(11,37,69,0.08);
+    overflow: hidden;
+    transition: box-shadow .25s, transform .25s;
+  }
+  .art-card:hover {
+    box-shadow: 0 20px 50px rgba(20,136,198,0.18);
+    transform: translateY(-4px);
+  }
+  .empty-box {
+    border: 2.5px dashed rgba(20,136,198,0.25);
+    border-radius: 24px;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(8px);
+    padding: 64px 24px;
+    text-align: center;
+  }
+  @@keyframes float-anim {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-14px); }
+  }
+  .float-anim { animation: float-anim 3s ease-in-out infinite; display: inline-block; }
+</style>
+
+<div class="min-h-screen flex flex-col" style="background: linear-gradient(160deg, #e0f7ff 0%, #b8e4f9 60%, #d0f0ea 100%); position:relative; overflow-x:hidden;">
+
+  <!-- Bubbles -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden" style="z-index:0">
+    @for (int i = 0; i < 12; i++)
+    {
+        var bx = Random.Shared.Next(2, 98);
+        var bs = Random.Shared.Next(6, 22);
+        var bd = Random.Shared.Next(9, 22);
+        var bDelay = Random.Shared.Next(0, 12);
+        <div class="bubble" style="left:@(bx)%;bottom:-40px;width:@(bs)px;height:@(bs)px;animation-duration:@(bd)s;animation-delay:@(bDelay)s;"></div>
+    }
+  </div>
+
+  <!-- NAVBAR -->
+  <nav style="background: linear-gradient(90deg, #0b2545 0%, #1488c6 100%); box-shadow: 0 2px 20px rgba(11,37,69,0.3);" class="sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-white font-black text-xl tracking-tight" style="text-decoration:none;">
+        <span class="text-2xl">🐟</span>
+        <span>Biển Của Chúng Mình</span>
+      </a>
+      <div class="hidden md:flex items-center gap-1">
+        <a asp-controller="Home"   asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Trang Chủ</a>
+        <a asp-controller="Studio" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Xưởng Vẽ</a>
+        <a asp-controller="Ocean"  asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Đại Dương</a>
+        <a asp-controller="Studio" asp-action="MyArt" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">🎨 Tác phẩm của tôi</a>
+        <a asp-controller="Admin"  asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:#0b2545;background:#90e0ef;text-decoration:none;">⚙️ Admin</a>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black" style="background:#a8f0e8;color:#0b2545;">@userName.Substring(0,1).ToUpper()</span>
+        <span class="text-white text-sm font-bold hidden md:block">@userName</span>
+        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+            <button type="submit" class="text-xs font-semibold px-2" style="color:rgba(255,255,255,.7);">Đăng xuất</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-10" style="z-index:1;">
+
+    <!-- Header -->
+    <div class="fade-up flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+      <div class="flex items-center gap-4">
+        <div class="text-5xl" style="filter:drop-shadow(0 4px 8px rgba(11,37,69,0.15));">⚙️</div>
+        <div>
+          <h1 class="font-black" style="font-size:clamp(26px,4vw,38px);color:#0b2545;letter-spacing:-.03em;line-height:1.1;">Trang Quản Trị</h1>
+          <p class="font-semibold mt-1" style="color:#4a7fa5;">
+            Xin chào, <span class="font-black" style="color:#1488c6;">@userName</span> — quản lý tác phẩm của cộng đồng
+          </p>
+        </div>
+      </div>
+      <!-- Stats badges -->
+      <div class="flex gap-3">
+        <div class="text-center px-5 py-3 rounded-2xl font-black" style="background:rgba(255,255,255,0.8);backdrop-filter:blur(12px);border:2px solid rgba(245,158,11,0.2);">
+          <div class="text-2xl font-black" style="color:#f59e0b;">@Model.Pending.Count</div>
+          <div class="text-xs font-bold" style="color:#92400e;">Chờ duyệt</div>
+        </div>
+        <div class="text-center px-5 py-3 rounded-2xl font-black" style="background:rgba(255,255,255,0.8);backdrop-filter:blur(12px);border:2px solid rgba(16,185,129,0.2);">
+          <div class="text-2xl font-black" style="color:#10b981;">@Model.InOcean.Count</div>
+          <div class="text-xs font-bold" style="color:#065f46;">Trong bể</div>
+        </div>
+        <div class="text-center px-5 py-3 rounded-2xl font-black" style="background:rgba(255,255,255,0.8);backdrop-filter:blur(12px);border:2px solid rgba(239,68,68,0.2);">
+          <div class="text-2xl font-black" style="color:#ef4444;">@Model.Trash.Count</div>
+          <div class="text-xs font-bold" style="color:#991b1b;">Thùng rác</div>
+        </div>
+      </div>
+    </div>
+
+    @if (TempData["OceanMessage"] is string msg)
+    {
+        <div class="mb-5 px-5 py-3 rounded-2xl font-bold text-sm fade-up flex items-center gap-3" style="background:#f0fdf4;color:#10b981;border:1.5px solid #bbf7d0;">
+          <span>✅ @msg</span>
+          @if (undoId.HasValue)
+          {
+              <form asp-action="UndoRemoveFromOcean" method="post" class="m-0">
+                  <input type="hidden" name="id" value="@undoId.Value" />
+                  <button type="submit" class="text-xs font-black px-3 py-1 rounded-xl" style="background:#10b981;color:white;">↶ Hoàn tác</button>
+              </form>
+          }
+        </div>
+    }
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 p-2 rounded-2xl" style="background:rgba(255,255,255,0.4);backdrop-filter:blur(12px);width:fit-content;">
+      <button type="button" class="tab-btn active" data-tab="pending">
+        ⏳ Chờ duyệt <span class="badge">@Model.Pending.Count</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="ocean">
+        🌊 Đang trong bể <span class="badge">@Model.InOcean.Count</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="trash">
+        🗑️ Thùng rác <span class="badge">@Model.Trash.Count</span>
+      </button>
+    </div>
+
+    <!-- ===== PANEL: Chờ duyệt ===== -->
+    <div class="panel active" id="panel-pending">
+      @if (!Model.Pending.Any())
+      {
+          <div class="empty-box">
+            <div class="float-anim text-5xl mb-3">✨</div>
+            <p class="font-bold" style="color:#4a7fa5;">Không có tác phẩm nào chờ duyệt</p>
+          </div>
+      }
+      else
+      {
+          <!-- Header row -->
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-bold" style="color:#4a7fa5;">@Model.Pending.Count tác phẩm đang chờ xét duyệt</p>
+            <div class="flex gap-2">
+              <form asp-action="ApproveAll" method="post"
+                    onsubmit="return confirm('Duyệt tất cả @Model.Pending.Count tác phẩm?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm text-white"
+                        style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+                  ✅ Duyệt tất cả
+                </button>
+              </form>
+              <form asp-action="RejectAll" method="post"
+                    onsubmit="return confirm('Từ chối tất cả @Model.Pending.Count tác phẩm?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm"
+                        style="background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;">
+                  ✗ Từ chối tất cả
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            @foreach (var art in Model.Pending)
+            {
+                <div class="art-card">
+                  <!-- Image -->
+                  <div class="flex items-center justify-center overflow-hidden"
+                       style="height:180px;background:linear-gradient(135deg,#a8f0e820,#7ec8e330);">
+                    <img src="@art.ImagePath" alt="@(art.Title ?? art.Template.Name)"
+                         style="max-height:150px;max-width:85%;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(11,37,69,0.18));" />
+                  </div>
+                  <!-- Info -->
+                  <div class="p-5">
+                    <h3 class="font-black text-base mb-1" style="color:#0b2545;">@(art.Title ?? "Chưa đặt tên")</h3>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-xs font-bold" style="color:#4a7fa5;">🐟 @art.Template.Name</span>
+                      <span class="text-xs font-black px-2 py-0.5 rounded-full"
+                            style="background:rgba(20,136,198,0.12);color:#1488c6;">@art.User.DisplayName</span>
+                    </div>
+                    <p class="text-xs font-semibold mb-3" style="color:#94a3b8;">
+                      @art.CreatedAt.ToLocalTime().ToString("HH:mm dd/MM/yyyy")
+                    </p>
+                    <form asp-action="Review" method="post" class="flex flex-col gap-2">
+                      <input type="hidden" name="id" value="@art.Id" />
+                      <button name="approve" value="true"
+                              class="w-full py-2.5 rounded-xl font-black text-sm text-white"
+                              style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+                        ✅ Duyệt & Thả vào bể
+                      </button>
+                      <button name="approve" value="false"
+                              class="w-full py-2.5 rounded-xl font-black text-sm"
+                              style="background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;">
+                        ✗ Từ chối
+                      </button>
+                    </form>
+                  </div>
+                </div>
+            }
+          </div>
+      }
+    </div>
+
+    <!-- ===== PANEL: Đang trong bể ===== -->
+    <div class="panel" id="panel-ocean">
+      @if (!Model.InOcean.Any())
+      {
+          <div class="empty-box">
+            <div class="float-anim text-5xl mb-3">🌊</div>
+            <p class="font-bold" style="color:#4a7fa5;">Chưa có cá nào trong bể</p>
+          </div>
+      }
+      else
+      {
+          <p class="text-sm font-bold mb-4" style="color:#4a7fa5;">@Model.InOcean.Count con cá đang bơi trong Đại Dương</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            @foreach (var art in Model.InOcean)
+            {
+                <div class="art-card">
+                  <div class="flex items-center justify-center overflow-hidden" style="height:180px;background:linear-gradient(135deg,#a8f0e825,#7ec8e330);">
+                    <img src="@art.ImagePath" alt="@(art.Title ?? art.Template.Name)"
+                         style="max-height:150px;max-width:85%;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(11,37,69,0.18));" />
+                  </div>
+                  <div class="p-5">
+                    <div class="text-xs font-black uppercase tracking-widest mb-1" style="color:#4a7fa5;">@art.Template.Name · @art.User.DisplayName</div>
+                    <h3 class="font-black text-base mb-1" style="color:#0b2545;">@(art.Title ?? "Cá chưa đặt tên")</h3>
+                    <p class="text-xs font-semibold mb-3" style="color:#4a7fa5;">@art.ReviewedAt?.ToLocalTime().ToString("HH:mm dd/MM/yyyy")</p>
+                    <a asp-controller="Ocean" asp-action="Index"
+                       class="block text-center py-2.5 rounded-xl font-black text-sm text-white mb-2"
+                       style="background:linear-gradient(135deg,#1488c6,#0b2545);text-decoration:none;">
+                      🌊 Xem trong Đại Dương
+                    </a>
+                    <form asp-action="RemoveFromOcean" method="post">
+                      <input type="hidden" name="id" value="@art.Id" />
+                      <button type="submit" class="w-full py-2.5 rounded-xl font-black text-sm"
+                              style="background:#fef2f2;color:#ef4444;">
+                        🗑️ Chuyển vào thùng rác
+                      </button>
+                    </form>
+                  </div>
+                </div>
+            }
+          </div>
+      }
+    </div>
+
+    <!-- ===== PANEL: Thùng rác ===== -->
+    <div class="panel" id="panel-trash">
+      @if (!Model.Trash.Any())
+      {
+          <div class="empty-box">
+            <div class="float-anim text-5xl mb-3">🧹</div>
+            <p class="font-bold" style="color:#4a7fa5;">Thùng rác trống sạch!</p>
+          </div>
+      }
+      else
+      {
+          <!-- Header row: count + delete all button -->
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-bold" style="color:#4a7fa5;">@Model.Trash.Count tác phẩm trong thùng rác</p>
+            <form asp-action="DeleteAllTrash" method="post"
+                  onsubmit="return confirm('Xóa vĩnh viễn toàn bộ thùng rác? Không thể hoàn tác!')">
+              @Html.AntiForgeryToken()
+              <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-xl font-black text-sm text-white"
+                      style="background:#ef4444;box-shadow:0 4px 14px rgba(239,68,68,0.35);">
+                🗑️ Xóa tất cả vĩnh viễn
+              </button>
+            </form>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            @foreach (var art in Model.Trash)
+            {
+                var isRemoved = art.Status == "RemovedFromOcean";
+                <div class="art-card">
+                  <!-- Image -->
+                  <div class="flex items-center justify-center overflow-hidden"
+                       style="height:180px;background:linear-gradient(135deg,#a8f0e815,#7ec8e320);">
+                    <img src="@art.ImagePath" alt="@(art.Title ?? art.Template.Name)"
+                         style="max-height:150px;max-width:85%;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(11,37,69,0.15));" />
+                  </div>
+                  <!-- Info -->
+                  <div class="p-5">
+                    <h3 class="font-black text-base mb-1" style="color:#0b2545;">@(art.Title ?? "Tác phẩm chưa đặt tên")</h3>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-xs font-bold" style="color:#4a7fa5;">🐟 @art.Template.Name</span>
+                      <span class="text-xs font-black px-2 py-0.5 rounded-full"
+                            style="background:rgba(20,136,198,0.12);color:#1488c6;">@art.User.DisplayName</span>
+                    </div>
+                    <p class="text-xs font-semibold mb-3" style="color:#94a3b8;">
+                      @art.CreatedAt.ToLocalTime().ToString("HH:mm dd/MM/yyyy")
+                    </p>
+
+                    <!-- Restore to pending -->
+                    <form asp-action="RestoreToPending" method="post" class="mb-2">
+                      <input type="hidden" name="id" value="@art.Id" />
+                      <button type="submit" class="w-full py-2.5 rounded-xl font-black text-sm"
+                              style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;box-shadow:0 4px 12px rgba(245,158,11,0.3);">
+                        🔄 Khôi phục (chờ duyệt lại)
+                      </button>
+                    </form>
+
+                    <!-- Delete permanently -->
+                    <form asp-action="DeletePermanently" method="post"
+                          onsubmit="return confirm('Xóa vĩnh viễn tác phẩm này?')">
+                      <input type="hidden" name="id" value="@art.Id" />
+                      <button type="submit" class="w-full py-2.5 rounded-xl font-black text-sm"
+                              style="background:#fef2f2;color:#ef4444;border:1.5px solid #fecaca;">
+                        🗑️ Xóa vĩnh viễn
+                      </button>
+                    </form>
+                  </div>
+                </div>
+            }
+          </div>
+      }
+    </div>
+
+  </main>
+
+  <!-- Wave footer -->
+  <div class="relative w-full overflow-hidden" style="height:120px;z-index:1;background:#b8e4f9;">
+    <div class="pointer-events-none absolute bottom-0 left-0"
+         style="width:200%;height:100%;opacity:0.85;
+                background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 120%22 preserveAspectRatio=%22none%22%3E%3Cpath d=%22M0,40 C150,10 350,70 600,40 C850,10 1050,70 1200,40 L1200,120 L0,120 Z%22 fill=%22%231488c6%22/%3E%3C/svg%3E');
+                background-size:50% 100%;animation:wave-anim 8s linear infinite;">
+    </div>
+    <footer class="absolute bottom-0 left-0 w-full text-center pb-4 text-sm font-bold" style="color:white;z-index:10;">
+      🐠 Biển Của Chúng Mình — Nơi mỗi con cá mang một câu chuyện 🌊
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  const tabs  = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+</script>
