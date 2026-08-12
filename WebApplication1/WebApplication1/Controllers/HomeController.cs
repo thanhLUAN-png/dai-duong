@@ -15,6 +15,7 @@ namespace WebApplication1.Controllers
             ViewBag.ApprovedCount  = _db.ArtworkSubmissions.Count(a => a.Status == "Approved");
             ViewBag.TemplateCount  = _db.CreatureTemplates.Count(t => t.IsActive);
             ViewBag.ArtistCount    = _db.Users.Count();
+            ViewBag.Templates      = _db.CreatureTemplates.Where(t => t.IsActive).OrderBy(t => t.Id).ToList();
             return View();
         }
 

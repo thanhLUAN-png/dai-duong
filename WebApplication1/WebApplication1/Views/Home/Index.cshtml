@@ -36,6 +36,34 @@
   background-size: 800px 140px;
   animation: wave-anim 8s linear infinite;
 }
+
+  /* Card float stagger */
+  @@keyframes card-float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  .template-card {
+    animation: card-float 4s ease-in-out infinite;
+    transition: box-shadow .25s, transform .25s;
+  }
+  .template-card:nth-child(2) { animation-delay: -1.4s; }
+  .template-card:nth-child(3) { animation-delay: -2.8s; }
+  .template-card:nth-child(4) { animation-delay: -4.2s; }
+  .template-card:nth-child(5) { animation-delay: -5.6s; }
+
+  .template-card:hover {
+    box-shadow: 0 24px 60px rgba(20,136,198,0.22) !important;
+    transform: translateY(-8px) scale(1.025) !important;
+    animation-play-state: paused;
+  }
+
+  .card-art {
+    transition: transform .3s;
+  }
+  .template-card:hover .card-art {
+    transform: scale(1.12) rotate(5deg);
+  }
 </style>
 
 <div class="relative min-h-screen" style="background: #e0f7ff; font-family: 'Nunito', sans-serif;">
@@ -165,26 +193,44 @@
       <h2 class="text-center text-2xl font-black mb-8" style="color: #0b2545;">
         🎨 Chọn sinh vật yêu thích để bắt đầu
       </h2>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-7">
         @{
-            var fishTemplates = new[] {
-                new { Id="clownfish",  Name="Cá Hề",         Emoji="🐠", Color="#ffdcdc" },
-                new { Id="angelfish",  Name="Cá Thiên Thần", Emoji="🐡", Color="#fff2cc" },
-                new { Id="pufferfish", Name="Cá Nóc",        Emoji="🐡", Color="#f2f2f2" },
-                new { Id="seahorse",   Name="Cá Ngựa",       Emoji="🦄", Color="#b8f2e6" },
-                new { Id="jellyfish",  Name="Con Sứa",       Emoji="🪼", Color="#cdb4db" },
-            };
+            var fishTemplates = ViewBag.Templates as IEnumerable<WebApplication1.Models.CreatureTemplate>;
+            int cardIdx = 0;
         }
-        @foreach (var fish in fishTemplates)
+        @if (fishTemplates != null)
         {
-            <a asp-controller="Studio" asp-action="Index"
-               class="group flex flex-col items-center gap-3 p-4 rounded-2xl transition-all hover:scale-105"
-               style="background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); border: 2px solid rgba(20,136,198,0.15); text-decoration: none;">
-              <span class="w-full flex justify-center items-center rounded-xl" style="height: 100px; background: color-mix(in srgb, @fish.Color, white 78%);">
-                <img src="~/images/templates/fish-template.png" style="height:70px; object-fit:contain;" alt="@fish.Name" />
-              </span>
-              <span class="text-sm font-black" style="color: #0b2545">@fish.Emoji @fish.Name</span>
-            </a>
+            @foreach (var item in fishTemplates.Take(3))
+            {
+                var emoji = item.Type == "Fish" ? "🐠" : item.Type == "Turtle" ? "🐢" : item.Type == "Starfish" ? "⭐" : "🪼";
+                var cardBg = item.Type == "Fish"     ? "linear-gradient(135deg,#a8f0e855,#7ec8e355)" :
+                             item.Type == "Turtle"   ? "linear-gradient(135deg,#b5ead755,#a8f0c055)" :
+                             item.Type == "Starfish" ? "linear-gradient(135deg,#ffd17055,#ffbc4255)" :
+                                                       "linear-gradient(135deg,#cdb4db55,#d0a9f555)";
+                var delay = cardIdx * 1.4;
+                <a asp-controller="Studio" asp-action="Index"
+                   class="template-card flex flex-col rounded-3xl overflow-hidden text-left"
+                   style="background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);border:2px solid rgba(20,136,198,0.1);box-shadow:0 10px 36px rgba(11,37,69,0.08);text-decoration:none;animation-delay:-@(delay)s;">
+
+                  <!-- Art area -->
+                  <div class="relative flex items-center justify-center overflow-hidden" style="height:200px;background:@cardBg;">
+                    <!-- decorative circles -->
+                    <div style="position:absolute;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.25);top:-30px;right:-30px;"></div>
+                    <div style="position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.2);bottom:-20px;left:10px;"></div>
+                    <div class="card-art" style="font-size:90px;line-height:1;position:relative;z-index:1;">@emoji</div>
+                  </div>
+
+                  <!-- Info area -->
+                  <div class="flex flex-col p-6 flex-1">
+                    <div class="text-xs font-black uppercase tracking-widest mb-2" style="color:#4a7fa5;letter-spacing:.12em;">@item.Type</div>
+                    <h2 class="text-2xl font-black mb-3" style="color:#0b2545;">@item.Name</h2>
+                    <div class="mt-auto flex items-center gap-2">
+                      <span class="text-sm font-black" style="color:#ff6b6b;">Chọn để tô màu →</span>
+                    </div>
+                  </div>
+                </a>
+                cardIdx++;
+            }
         }
       </div>
     </div>
