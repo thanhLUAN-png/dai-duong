@@ -2,3 +2,6 @@
 
 @keyframes jellyfish-squish { 0% { transform: scale(1, 1); } 50% { transform: scale(0.92, 1.08); } 100% { transform: scale(1, 1); } } .jellyfish-anim { animation: jellyfish-squish 2.5s ease-in-out infinite alternate !important; transform-origin: top center; }
 
+@keyframes fish2-tail-wag { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+.fish2-tail { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transform-origin:30% 50%; animation: fish2-tail-wag 0.7s infinite alternate ease-in-out; pointer-events:none; }
+

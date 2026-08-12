@@ -35,6 +35,16 @@ if (immersiveOcean) {
           if (base) {
               base.classList.add('fish-body-layer'); 
               if (state.type === 'Jellyfish') base.classList.add('jellyfish-anim');
+              // Fish2: inject animated tail layer from the tail image
+              if (state.type === 'Fish2' && !state.fish.querySelector('.fish2-tail')) {
+                  const tail = document.createElement('img');
+                  tail.className = 'fish2-tail';
+                  tail.src = '/images/templates/angelfish-tail.png';
+                  tail.alt = '';
+                  tail.setAttribute('aria-hidden', 'true');
+                  state.fish.style.position = 'absolute';
+                  base.after(tail);
+              }
           }
       }
       const pathPhase = realSeconds * (.043 + (state.seed % .009)) + state.phase;
@@ -46,6 +56,7 @@ if (immersiveOcean) {
           targetY = immersiveOcean.clientHeight * (.15 + Math.sin(verticalPhase * 0.8) * .12); 
           state.face = 1;
       } else {
+          // Fish, Fish2, and all others swim left-right across the full world
           targetX = wrap(width * .5 + Math.sin(pathPhase) * width * .43 + state.seed * width * .11, width);
           targetY = immersiveOcean.clientHeight * (.42 + Math.sin(verticalPhase) * .18);
           state.face = Math.cos(pathPhase) >= 0 ? -1 : 1;
