@@ -175,37 +175,31 @@
   <!-- NAVBAR -->
   <nav style="background: linear-gradient(90deg, #0b2545 0%, #1488c6 100%); box-shadow: 0 2px 20px rgba(11,37,69,0.3);" class="sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-white font-black text-xl tracking-tight" style="text-decoration:none;">
-        <span class="text-2xl">🐟</span>
-        <span>Biển Của Chúng Mình</span>
+      <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2 text-white font-black text-xl tracking-tight" style="text-decoration: none;">
+        <span style="color: #a8f0e8; font-size: 22px;">◒</span>
+        <span>biển của chúng mình</span>
       </a>
       <div class="hidden md:flex items-center gap-1">
-        <a asp-controller="Home" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Trang Chủ</a>
-        <a asp-controller="Studio" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:#0b2545;background:#90e0ef;text-decoration:none;">Xưởng Vẽ</a>
-        <a asp-controller="Ocean" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color:rgba(255,255,255,.85);text-decoration:none;">Đại Dương</a>
+        <a asp-controller="Home" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color: rgba(255,255,255,0.85); text-decoration: none;">Trang Chủ</a>
+        <a asp-controller="Studio" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color: #0b2545; background: #90e0ef; text-decoration: none;">Xưởng Vẽ</a>
+        <a asp-controller="Ocean" asp-action="Index" class="px-4 py-2 rounded-full text-sm font-bold" style="color: rgba(255,255,255,0.85); text-decoration: none;">Đại Dương</a>
       </div>
       <div class="flex items-center gap-3">
         @if (signedIn)
         {
-            <a asp-controller="Studio" asp-action="MyArt" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">🎨 Tác phẩm của tôi</a>
+            <a asp-controller="Studio" asp-action="MyArt" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background: rgba(255,255,255,0.15); color: white; text-decoration: none;">🎨 Tác phẩm của tôi</a>
             @if (User.IsInRole("Admin"))
             {
-                <a asp-controller="Admin" asp-action="Index" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,107,107,.3);color:#ffd6d6;text-decoration:none;">⚙️ Admin</a>
+                <a asp-controller="Admin" asp-action="Index" class="hidden md:block text-sm font-bold px-4 py-2 rounded-full" style="background: rgba(255,200,100,0.25); color: #ffd700; text-decoration: none;">⚡ Admin</a>
             }
-            <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black" style="background:#a8f0e8;color:#0b2545;">@userName.Substring(0,1).ToUpper()</span>
-                <span class="text-white text-sm font-bold hidden md:block">@userName</span>
-                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                    <button type="submit" class="text-xs font-semibold px-2" style="color:rgba(255,255,255,.7);">Đăng xuất</button>
-                </form>
-            </div>
+            <span class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm" style="background: linear-gradient(135deg, #a8f0e8, #1488c6); color: #0b2545;">@(userName.Length > 0 ? userName[0].ToString().ToUpper() : "U")</span>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                <button type="submit" class="text-sm font-bold" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 0;">Đăng xuất</button>
+            </form>
         }
         else
         {
-            <div class="flex items-center gap-2">
-                <a asp-controller="Account" asp-action="Login" class="text-sm font-bold px-4 py-2 rounded-full" style="background:rgba(255,255,255,.15);color:white;text-decoration:none;">Đăng nhập</a>
-                <a asp-controller="Account" asp-action="Register" class="text-sm font-bold px-4 py-2 rounded-full" style="background:#ff6b6b;color:white;text-decoration:none;">Đăng ký</a>
-            </div>
+            <a asp-controller="Account" asp-action="Login" class="px-5 py-2 rounded-full text-sm font-black" style="background: #ff6b6b; color: white; text-decoration: none;">Đăng nhập</a>
         }
       </div>
     </div>
