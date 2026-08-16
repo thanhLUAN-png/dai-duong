@@ -67,15 +67,15 @@ if (immersiveOcean) {
       
       const screenX = wrap(state.x - camera, width); const visible = screenX < viewWidth + 210;
       state.fish.style.visibility = visible ? 'visible' : 'hidden'; if (!visible) return;
-      const wave = Math.sin(time / 1000 * 1.75 + state.phase); const left = `${screenX}px`, top = `${state.y + wave * 8}px`, transform = `scaleX(${state.face}) rotate(${wave * 1.7}deg)`;
+      const left = `${screenX}px`, top = `${state.y}px`, transform = `scaleX(${state.face})`;
       // CSS cũ có left/top !important; dùng setProperty để tọa độ của animation
       // luôn thắng CSS và được áp dụng ngay trong đúng frame đang tính.
       state.fish.style.setProperty('left', left, 'important'); 
       state.fish.style.setProperty('top', top, 'important'); 
       state.fish.style.setProperty('transform', transform, 'important');
       if (state.type === 'Jellyfish') state.fish.style.setProperty('opacity', '1', 'important');
-      const body = state.fish.querySelector('.fish-body-layer') || state.fish.querySelector('img'); const tail = state.fish.querySelector('.fish-tail-layer'); const glow = .88 + (wave + 1) * .06;
-      if (body) body.style.filter = `brightness(${glow}) saturate(1.18) drop-shadow(0 10px 9px rgba(0,25,48,.48))`; if (tail) tail.style.filter = body?.style.filter || '';
+      const body = state.fish.querySelector('.fish-body-layer') || state.fish.querySelector('img'); const tail = state.fish.querySelector('.fish-tail-layer');
+      if (body) body.style.filter = `brightness(0.95) saturate(1.18) drop-shadow(0 10px 9px rgba(0,25,48,.48))`; if (tail) tail.style.filter = body?.style.filter || '';
     });
     if (states[0]) { const sample = states[0]; console.debug('[Immersive fish frame]', { x: Math.round(sample.x), y: Math.round(sample.y), left: sample.fish.style.left, top: sample.fish.style.top, transform: sample.fish.style.transform }); }
     if (time - lastDebug > 4000) { console.debug('[Immersive ocean]', { realSeconds: Math.round(realSeconds), frame: Math.floor(camera / viewWidth) + 1, fish: states.map(s => ({ x: Math.round(s.x), y: Math.round(s.y) })) }); lastDebug = time; }

@@ -1,1 +1,1 @@
-.ocean-open-grid .fish-creature>img.fish-tail-layer{animation:fish-tail-wag 1s infinite alternate ease-in-out!important;transform-origin:var(--tail-pivot,68%) 50%!important}@keyframes fish-tail-wag{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+.ocean-open-grid .fish-creature>img.fish-tail-layer{animation:none!important;transform:none!important}

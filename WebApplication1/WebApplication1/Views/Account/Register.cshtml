@@ -5,7 +5,15 @@
     <a class="brand account-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">🐟</span> Biển Của Chúng Mình</a>
     <section class="account-card">
         <div class="account-icon">🪼</div><p class="eyebrow">Bắt đầu hành trình</p><h1>Tham gia cùng chúng mình!</h1>
-        <form method="post"><div asp-validation-summary="ModelOnly" class="validation"></div><label>Tên hiển thị<input asp-for="DisplayName" placeholder="Tên của bạn" /></label><label>Email<input asp-for="Email" placeholder="ban@email.com" /></label><label>Mật khẩu<input asp-for="Password" placeholder="Ít nhất 6 ký tự" /></label><button class="primary-button account-coral" type="submit">🐟 Tạo tài khoản &amp; vào Xưởng vẽ</button></form>
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+            <label>Tên hiển thị<input asp-for="DisplayName" placeholder="Tên của bạn" /></label>
+            <label>Email<input asp-for="Email" placeholder="ban@email.com" /></label>
+            <label>Mật khẩu<input asp-for="Password" placeholder="Ít nhất 6 ký tự" /></label>
+            <label>Nhập lại mật khẩu<input asp-for="ConfirmPassword" placeholder="Nhập lại mật khẩu" /></label>
+            <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+            <button class="primary-button account-coral" type="submit">🐟 Tiếp tục → Xác nhận Email</button>
+        </form>
         <p>Đã có tài khoản? <a asp-action="Login">Đăng nhập</a></p>
     </section>
 </main>

@@ -1,0 +1,74 @@
+@model WebApplication1.ViewModels.OtpViewModel
+@{ ViewData["Title"] = "Xác nhận Email"; }
+<main class="account-page">
+    <div class="account-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <a class="brand account-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">🐟</span> Biển Của Chúng Mình</a>
+    <section class="account-card">
+        <div class="account-icon">📬</div>
+        <p class="eyebrow">Xác nhận Email</p>
+        <h1>Kiểm tra hộp thư!</h1>
+        <p class="otp-desc">Mình đã gửi mã <strong>6 chữ số</strong> tới<br/><strong>@Model.Email</strong><br/>Mã có hiệu lực trong <strong>5 phút</strong>.</p>
+
+        @if (TempData["ResendOk"] is string ok)
+        {
+            <div class="otp-success">✅ @ok</div>
+        }
+        @if (TempData["ResendError"] is string err)
+        {
+            <div class="validation">@err</div>
+        }
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+            <input type="hidden" asp-for="Email" />
+            <label>
+                Mã OTP
+                <input asp-for="Otp" placeholder="_ _ _ _ _ _" maxlength="6"
+                       autocomplete="one-time-code" inputmode="numeric"
+                       class="otp-input" id="otpInput" />
+            </label>
+            <span asp-validation-for="Otp" class="field-validation-error"></span>
+            <button class="primary-button account-coral" type="submit">🌊 Xác nhận & Vào Xưởng vẽ</button>
+        </form>
+
+        <form method="post" asp-action="ResendOtp" style="margin-top:12px;">
+            <input type="hidden" name="email" value="@Model.Email" />
+            <button type="submit" class="link-button">Chưa nhận được? Gửi lại mã</button>
+        </form>
+
+        <p style="margin-top:16px;"><a asp-action="Register">← Quay lại đăng ký</a></p>
+    </section>
+</main>
+
+<style>
+.otp-desc { color: #555; margin: 8px 0 20px; line-height: 1.6; }
+.otp-input {
+    font-size: 2rem !important;
+    letter-spacing: 0.5rem !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+}
+.otp-success {
+    background: #d1fae5; color: #065f46;
+    border-radius: 8px; padding: 10px 16px;
+    margin-bottom: 16px; font-size: 0.9rem;
+}
+.link-button {
+    background: none; border: none; cursor: pointer;
+    color: #0077b6; text-decoration: underline;
+    font-size: 0.9rem; padding: 0;
+}
+.link-button:hover { color: #005f92; }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Tự động format OTP input — chỉ cho nhập số
+        const otpInput = document.getElementById('otpInput');
+        otpInput?.addEventListener('input', e => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+        });
+        otpInput?.focus();
+    </script>
+}
