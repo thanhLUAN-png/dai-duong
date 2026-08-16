@@ -25,8 +25,7 @@ if (immersiveOcean) {
     phase: index * 1.713 + .41,
     baseX: immersiveOcean.clientWidth * (0.2 + Math.random() * 0.6) // Random X in the central 60% of the first screen
   }));
-  let lastDebug = 0;
-  const animate = time => {
+  const animate = () => {
     if (!dragging && Math.abs(velocity) > .03) { camera += velocity; velocity *= .91; renderCamera(); }
     const width = worldWidth(), viewWidth = immersiveOcean.clientWidth, realSeconds = (Date.now() - fishEpoch) / 1000;
     states.forEach(state => {
@@ -77,8 +76,6 @@ if (immersiveOcean) {
       const body = state.fish.querySelector('.fish-body-layer') || state.fish.querySelector('img'); const tail = state.fish.querySelector('.fish-tail-layer');
       if (body) body.style.filter = `brightness(0.95) saturate(1.18) drop-shadow(0 10px 9px rgba(0,25,48,.48))`; if (tail) tail.style.filter = body?.style.filter || '';
     });
-    if (states[0]) { const sample = states[0]; console.debug('[Immersive fish frame]', { x: Math.round(sample.x), y: Math.round(sample.y), left: sample.fish.style.left, top: sample.fish.style.top, transform: sample.fish.style.transform }); }
-    if (time - lastDebug > 4000) { console.debug('[Immersive ocean]', { realSeconds: Math.round(realSeconds), frame: Math.floor(camera / viewWidth) + 1, fish: states.map(s => ({ x: Math.round(s.x), y: Math.round(s.y) })) }); lastDebug = time; }
     requestAnimationFrame(animate);
   }; requestAnimationFrame(animate);
 }

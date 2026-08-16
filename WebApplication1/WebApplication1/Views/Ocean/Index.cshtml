@@ -1,7 +1,6 @@
 @model IEnumerable<WebApplication1.Models.ArtworkSubmission>
 @{ 
     ViewData["Title"] = "Đại dương"; 
-    var frames = new[] { "coral-frame-1.png", "coral-frame-2.png", "coral-frame-3.png", "coral-frame-4.png" }; 
     var signedIn = User.Identity?.IsAuthenticated == true;
     var userName = User.Identity?.Name ?? "U";
     var fishCount = Model.Count();
@@ -124,10 +123,8 @@
 
     <!-- OCEAN CONTAINER (The Aquarium Frame) -->
     <section class="w-full max-w-[1400px] mx-auto px-4 hero-animate" style="animation-delay: 0.1s;">
-      <!-- The Aquarium Box exactly like Figma: wider, slightly smaller radius, no white border -->
       <div class="relative w-full overflow-hidden shadow-[0_12px_40px_rgba(0,40,80,0.15)]" style="aspect-ratio: 2/1; max-height: 650px; border-radius: 20px; background: #094F97;">
         
-        <!-- The actual immersive ocean from previous iteration goes here -->
         <div class="immersive-ocean w-full h-full" id="immersiveOcean" aria-label="Hồ cá cộng đồng — kéo ngang để khám phá" style="background: transparent;">
           <div class="light-rays immersive-rays" style="opacity: 0.3;"></div>
           <div class="ocean-bubble-field" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -175,7 +172,6 @@
               </div> 
           }
           
-          <!-- Hiding drag hint visually or keep it subtle to match Figma clean look? The user said keep how it works. I'll make it match the image if possible, or just leave it. -->
           <div class="ocean-drag-hint" style="display: none;"><span>↔</span> Kéo ngang để xem quanh hồ <b id="oceanFrameLabel">01 / 04</b></div>
         </div>
 

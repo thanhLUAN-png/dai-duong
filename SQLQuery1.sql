@@ -74,9 +74,16 @@ IF NOT EXISTS (SELECT 1 FROM CreatureTemplates)
 BEGIN
     INSERT INTO CreatureTemplates (Name, Type, OutlineImagePath)
     VALUES
-        (N'Cá cầu vồng', N'Fish', N'/images/templates/fish.svg'),
-        (N'Rùa nhỏ', N'Turtle', N'/images/templates/turtle.svg'),
-        (N'Sao biển ấm áp', N'Starfish', N'/images/templates/starfish.svg');
+        (N'Cá cầu vồng', N'Fish', N'/images/templates/fish-template.png'),
+        (N'Sứa đáng yêu', N'Jellyfish', N'/images/templates/jellyfish-template.png'),
+        (N'Cá thiên thần', N'Fish2', N'/images/templates/angelfish-template.png');
+END
+ELSE
+BEGIN
+    -- Cập nhật lại dữ liệu cho chuẩn nếu bảng đã có sẵn dữ liệu cũ
+    UPDATE CreatureTemplates SET Name = N'Cá cầu vồng', Type = N'Fish', OutlineImagePath = '/images/templates/fish-template.png' WHERE Id = 1;
+    UPDATE CreatureTemplates SET Name = N'Sứa đáng yêu', Type = N'Jellyfish', OutlineImagePath = '/images/templates/jellyfish-template.png' WHERE Id = 2;
+    UPDATE CreatureTemplates SET Name = N'Cá thiên thần', Type = N'Fish2', OutlineImagePath = '/images/templates/angelfish-template.png' WHERE Id = 3;
 END
 GO
 

@@ -1,1 +1,0 @@
-﻿UPDATE CreatureTemplates SET Name = N'Cá cầu vồng', OutlineImagePath = '/images/templates/fish-template.png' WHERE Id = 1; UPDATE CreatureTemplates SET Name = N'Rùa nhỏ' WHERE Id = 2; UPDATE CreatureTemplates SET Name = N'Sao biển ấm áp' WHERE Id = 3;

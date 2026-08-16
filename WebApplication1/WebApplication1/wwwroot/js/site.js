@@ -1,8 +1,3 @@
-document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
-  const target = document.querySelector(link.getAttribute('href'));
-  if (target) { event.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-}));
-
 const canvas = document.getElementById('colorCanvas');
 if (canvas) {
   const ctx = canvas.getContext('2d'); let drawing = false, erasing = false, color = '#ef7658', size = 14, history = [], redoHistory = [];
@@ -71,23 +66,6 @@ if (canvas) {
   document.getElementById('submissionForm').onsubmit=()=>document.getElementById('imageData').value=canvas.toDataURL('image/png');
 }
 
-const creatureGrid = document.getElementById('oceanCreatureGrid');
-if (creatureGrid && document.getElementById('oceanPager')) {
-  const creatures = [...creatureGrid.querySelectorAll('.depth-creature')];
-  const pager = document.getElementById('oceanPager'); const label = document.getElementById('oceanPageLabel');
-  const perPage = 6; const pages = Math.ceil(creatures.length / perPage); let page = 0;
-  const renderPage = () => {
-    creatures.forEach((creature, index) => creature.hidden = Math.floor(index / perPage) !== page);
-    const slotCount = Math.min(pages, 7); const center = Math.floor(slotCount / 2); label.replaceChildren();
-    for (let slot = 0; slot < slotCount; slot++) {
-      const shownPage = (page + slot - center + pages) % pages; const button = document.createElement('button');
-      button.type = 'button'; button.textContent = String(shownPage + 1).padStart(2, '0'); button.className = shownPage === page ? 'active' : '';
-      button.onclick = () => { page = shownPage; renderPage(); }; label.append(button);
-    }
-  };
-  if (pages) { pager.hidden = false; renderPage(); document.getElementById('oceanNext').onclick = () => { page = (page + 1) % pages; renderPage(); }; document.getElementById('oceanPrevious').onclick = () => { page = (page - 1 + pages) % pages; renderPage(); }; }
-}
-
 document.querySelectorAll('.ocean-open-grid .released-creature img').forEach(image => {
   const trimArtwork = () => {
     if (image.dataset.trimmed) return; image.dataset.trimmed = 'true';
@@ -116,7 +94,7 @@ document.querySelectorAll('.ocean-open-grid .released-creature img').forEach(ima
     if (fish && !fish.dataset.tailReady) {
       // Mẫu cá hiện tại có đầu/mắt bên trái và vây đuôi hình quạt bên phải.
       // Điểm nối nằm ở eo, khoảng 70% bề ngang ảnh đã crop (đã kiểm tra theo mẫu).
-      fish.dataset.tailReady = 'true'; const tailInfo = { side: 'right' };
+      fish.dataset.tailReady = 'true';
       const splitX = Math.round(cropped.width * .70), overlap = Math.max(3, Math.round(cropped.width * 0.025)), tailOnLeft = false;
       const bodyCanvas = document.createElement('canvas'), tailCanvas = document.createElement('canvas'); bodyCanvas.width = tailCanvas.width = cropped.width; bodyCanvas.height = tailCanvas.height = cropped.height;
       const bodyContext = bodyCanvas.getContext('2d'), tailContext = tailCanvas.getContext('2d');
@@ -125,55 +103,8 @@ document.querySelectorAll('.ocean-open-grid .released-creature img').forEach(ima
       else { bodyContext.clearRect(splitX + overlap, 0, cropped.width - splitX, cropped.height); tailContext.clearRect(0, 0, Math.max(0, splitX - overlap), cropped.height); }
       image.classList.add('fish-body-layer'); image.src = bodyCanvas.toDataURL('image/png');
       fish.style.setProperty('--tail-pivot', `${(splitX / cropped.width * 100).toFixed(2)}%`);
-      fish.dataset.tailSide = tailInfo.side; console.debug('[Ocean fish split]', { tailSide: tailInfo.side, splitX });
       const tail = image.cloneNode(); tail.className = 'fish-tail-layer'; tail.src = tailCanvas.toDataURL('image/png'); tail.alt = ''; tail.setAttribute('aria-hidden', 'true'); image.after(tail);
     }
   };
   if (image.complete) trimArtwork(); else image.addEventListener('load', trimArtwork, { once: true });
 });
-
-const naturalOcean = document.querySelector('.ocean-open-grid:not(.immersive-fish-layer)');
-if (naturalOcean) {
-  const fishes = [...naturalOcean.querySelectorAll('.fish-creature')];
-  const swimStates = fishes.map((fish, index) => ({
-    fish, image: fish.querySelector('.fish-body-layer') || fish.querySelector('img'), tail: fish.querySelector('.fish-tail-layer'),
-    x: 35 + index * 145, y: 55 + index * 70, targetX: 0, targetY: 0, nextTargetAt: 0,
-    travelSpeed: 58 + Math.random() * 35, phaseSpeed: 0.9 + Math.random() * 0.35, phase: Math.random() * Math.PI * 2
-  }));
-  let previousFrame = 0, lastDebug = 0;
-  const pickTarget = (state, time, width, height) => {
-    const fishWidth = state.fish.offsetWidth, fishHeight = state.fish.offsetHeight;
-    state.targetX = 15 + Math.random() * Math.max(1, width - fishWidth - 30);
-    state.targetY = 15 + Math.random() * Math.max(1, height - fishHeight - 30);
-    state.nextTargetAt = time + (2000 + Math.random() * 3000);
-  };
-  const swimFrame = time => {
-    const elapsed = Math.min((time - previousFrame) / 1000 || 0, 0.04); previousFrame = time;
-    const width = naturalOcean.clientWidth, height = naturalOcean.clientHeight;
-    swimStates.forEach(state => {
-      const fishWidth = state.fish.offsetWidth, fishHeight = state.fish.offsetHeight;
-      const dx = state.targetX - state.x, dy = state.targetY - state.y, distance = Math.hypot(dx, dy);
-      if (time >= state.nextTargetAt || distance < 12) pickTarget(state, time, width, height);
-      const targetDx = state.targetX - state.x, targetDy = state.targetY - state.y, targetDistance = Math.max(1, Math.hypot(targetDx, targetDy));
-      const step = Math.min(targetDistance, state.travelSpeed * elapsed); state.x += targetDx / targetDistance * step; state.y += targetDy / targetDistance * step;
-      state.x = Math.max(12, Math.min(state.x, width - fishWidth - 12)); state.y = Math.max(12, Math.min(state.y, height - fishHeight - 12));
-      const swimPhase = time / 1000 * state.phaseSpeed + state.phase;
-      const bob = Math.sin(swimPhase * 2.2) * 10;
-      // Ảnh mẫu có đầu ở phía trái. Khi bơi sang phải cần lật ngang để đầu dẫn đường.
-      const direction = targetDx >= 0 ? -1 : 1;
-      state.fish.style.setProperty('left', `${state.x}px`, 'important');
-      state.fish.style.setProperty('top', `${state.y + bob}px`, 'important');
-      state.fish.style.transform = `scaleX(${direction}) rotate(${Math.sin(swimPhase) * 2}deg)`;
-      if (!state.tail) state.tail = state.fish.querySelector('.fish-tail-layer');
-      if (state.image) {
-        const shimmer = (Math.sin(swimPhase * 3.4) + 1) / 2;
-        state.image.style.filter = `brightness(${1 + shimmer * 0.14}) saturate(${1 + shimmer * 0.25}) hue-rotate(${shimmer * 9}deg) drop-shadow(0 10px 8px rgba(0, 38, 60, ${0.28 + shimmer * 0.16}))`;
-        state.image.style.opacity = `${0.91 + shimmer * 0.09}`;
-      }
-      if (state.tail) { state.tail.style.filter = state.image?.style.filter || ''; state.tail.style.opacity = state.image?.style.opacity || '1'; }
-    });
-    if (time - lastDebug > 3000) { console.debug('[Ocean fish animation]', swimStates.map(({ x, y, targetX, targetY }) => ({ x: Math.round(x), y: Math.round(y), targetX: Math.round(targetX), targetY: Math.round(targetY) }))); lastDebug = time; }
-    requestAnimationFrame(swimFrame);
-  };
-  requestAnimationFrame(swimFrame);
-}
