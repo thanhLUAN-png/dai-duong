@@ -1,0 +1,342 @@
+{
+  "communities": {
+    "0": [
+      "data_oceandbcontext_webapplication1_data_oceandbcontext",
+      "data_oceandbcontext_webapplication1_data_oceandbcontext_onmodelcreating",
+      "dbcontext",
+      "dbset",
+      "icollection",
+      "list",
+      "modelbuilder",
+      "models_artworksubmission",
+      "models_artworksubmission_cs_datetime",
+      "models_artworksubmission_webapplication1_models_artworksubmission",
+      "models_creaturetemplate",
+      "models_creaturetemplate_cs_datetime",
+      "models_creaturetemplate_webapplication1_models_creaturetemplate",
+      "models_user",
+      "models_user_cs_datetime",
+      "models_user_webapplication1_models_user",
+      "viewmodels_admindashboardviewmodel_webapplication1_viewmodels_admindashboardviewmodel"
+    ],
+    "1": [
+      "properties_launchsettings",
+      "properties_launchsettings_environmentvariables_aspnetcore_environment",
+      "properties_launchsettings_http_applicationurl",
+      "properties_launchsettings_http_commandname",
+      "properties_launchsettings_http_dotnetrunmessages",
+      "properties_launchsettings_http_environmentvariables",
+      "properties_launchsettings_http_launchbrowser",
+      "properties_launchsettings_https_applicationurl",
+      "properties_launchsettings_https_commandname",
+      "properties_launchsettings_https_dotnetrunmessages",
+      "properties_launchsettings_https_environmentvariables",
+      "properties_launchsettings_https_launchbrowser",
+      "properties_launchsettings_profiles",
+      "properties_launchsettings_profiles_http",
+      "properties_launchsettings_profiles_https",
+      "properties_launchsettings_schema"
+    ],
+    "2": [
+      "controllers_accountcontroller",
+      "controllers_admincontroller",
+      "controllers_homecontroller",
+      "controllers_oceancontroller",
+      "controllers_studiocontroller",
+      "csharp_namespace:2a3b42d397c82cf3",
+      "csharp_namespace:359895e535649869",
+      "csharp_namespace:5452d7eae3bc40fc",
+      "csharp_namespace:c911456ca0f71846",
+      "data_oceandbcontext",
+      "models_errorviewmodel",
+      "models_errorviewmodel_webapplication1_models_errorviewmodel",
+      "program",
+      "viewmodels_admindashboardviewmodel"
+    ],
+    "3": [
+      "controllers_accountcontroller_cs_httppost",
+      "controllers_accountcontroller_cs_iactionresult",
+      "controllers_accountcontroller_cs_task",
+      "controllers_accountcontroller_cs_validateantiforgerytoken",
+      "controllers_accountcontroller_webapplication1_controllers_accountcontroller",
+      "controllers_accountcontroller_webapplication1_controllers_accountcontroller_login",
+      "controllers_accountcontroller_webapplication1_controllers_accountcontroller_logout",
+      "controllers_accountcontroller_webapplication1_controllers_accountcontroller_register",
+      "controllers_accountcontroller_webapplication1_controllers_accountcontroller_signin",
+      "httpget",
+      "viewmodels_accountviewmodels",
+      "viewmodels_accountviewmodels_webapplication1_viewmodels_loginviewmodel",
+      "viewmodels_accountviewmodels_webapplication1_viewmodels_registerviewmodel"
+    ],
+    "4": [
+      "controller",
+      "controllers_homecontroller_cs_iactionresult",
+      "controllers_homecontroller_webapplication1_controllers_homecontroller",
+      "controllers_homecontroller_webapplication1_controllers_homecontroller_error",
+      "controllers_homecontroller_webapplication1_controllers_homecontroller_index",
+      "controllers_homecontroller_webapplication1_controllers_homecontroller_privacy",
+      "controllers_oceancontroller_cs_iactionresult",
+      "controllers_oceancontroller_cs_task",
+      "controllers_oceancontroller_webapplication1_controllers_oceancontroller",
+      "controllers_oceancontroller_webapplication1_controllers_oceancontroller_index",
+      "responsecache"
+    ],
+    "5": [
+      "controllers_admincontroller_cs_httppost",
+      "controllers_admincontroller_cs_iactionresult",
+      "controllers_admincontroller_cs_task",
+      "controllers_admincontroller_cs_validateantiforgerytoken",
+      "controllers_admincontroller_webapplication1_controllers_admincontroller",
+      "controllers_admincontroller_webapplication1_controllers_admincontroller_index",
+      "controllers_admincontroller_webapplication1_controllers_admincontroller_removefromocean",
+      "controllers_admincontroller_webapplication1_controllers_admincontroller_review",
+      "controllers_admincontroller_webapplication1_controllers_admincontroller_undoremovefromocean"
+    ],
+    "6": [
+      "controllers_studiocontroller_cs_httppost",
+      "controllers_studiocontroller_cs_iactionresult",
+      "controllers_studiocontroller_cs_task",
+      "controllers_studiocontroller_cs_validateantiforgerytoken",
+      "controllers_studiocontroller_webapplication1_controllers_studiocontroller",
+      "controllers_studiocontroller_webapplication1_controllers_studiocontroller_color",
+      "controllers_studiocontroller_webapplication1_controllers_studiocontroller_index",
+      "controllers_studiocontroller_webapplication1_controllers_studiocontroller_myart",
+      "controllers_studiocontroller_webapplication1_controllers_studiocontroller_submit"
+    ],
+    "7": [
+      "framework_net10_0",
+      "nuget_microsoft_entityframeworkcore",
+      "nuget_microsoft_entityframeworkcore_sqlserver",
+      "nuget_microsoft_entityframeworkcore_tools",
+      "sdk_microsoft_net_sdk_web",
+      "webapplication1"
+    ],
+    "8": [
+      "wwwroot_js_site",
+      "wwwroot_js_site_canvas",
+      "wwwroot_js_site_creaturegrid",
+      "wwwroot_js_site_naturalocean"
+    ],
+    "9": [
+      "ienumerable_webapplication1_models_creaturetemplate",
+      "views_studio_index"
+    ],
+    "10": [
+      "views_account_login",
+      "webapplication1_viewmodels_loginviewmodel"
+    ],
+    "11": [
+      "views_account_register",
+      "webapplication1_viewmodels_registerviewmodel"
+    ],
+    "12": [
+      "views_admin_index",
+      "webapplication1_viewmodels_admindashboardviewmodel"
+    ],
+    "13": [
+      "views_ocean_index",
+      "views_ocean_index_cshtml_ienumerable_webapplication1_models_artworksubmission"
+    ],
+    "14": [
+      "views_studio_color",
+      "webapplication1_models_creaturetemplate"
+    ],
+    "15": [
+      "views_studio_myart",
+      "views_studio_myart_cshtml_ienumerable_webapplication1_models_artworksubmission"
+    ],
+    "16": [
+      "views_viewimports",
+      "webapplication1_models"
+    ],
+    "17": [
+      "wwwroot_js_ocean_immersive",
+      "wwwroot_js_ocean_immersive_immersiveocean"
+    ],
+    "18": [
+      "views_home_index"
+    ],
+    "19": [
+      "views_home_privacy"
+    ],
+    "20": [
+      "views_shared_error"
+    ],
+    "21": [
+      "views_shared_layout"
+    ],
+    "22": [
+      "views_shared_validationscriptspartial"
+    ],
+    "23": [
+      "views_viewstart"
+    ]
+  },
+  "cohesion": {
+    "0": 0.1323529411764706,
+    "1": 0.13333333333333333,
+    "2": 0.24175824175824176,
+    "3": 0.32051282051282054,
+    "4": 0.21818181818181817,
+    "5": 0.5,
+    "6": 0.3888888888888889,
+    "7": 0.3333333333333333,
+    "8": 0.5,
+    "9": 1.0,
+    "10": 1.0,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0,
+    "20": 1.0,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0
+  },
+  "gods": [
+    {
+      "id": "csharp_namespace:5452d7eae3bc40fc",
+      "label": "WebApplication1.Models",
+      "degree": 9
+    },
+    {
+      "id": "data_oceandbcontext_webapplication1_data_oceandbcontext",
+      "label": "OceanDbContext",
+      "degree": 8
+    },
+    {
+      "id": "csharp_namespace:2a3b42d397c82cf3",
+      "label": "WebApplication1.Data",
+      "degree": 7
+    },
+    {
+      "id": "models_artworksubmission_webapplication1_models_artworksubmission",
+      "label": "ArtworkSubmission",
+      "degree": 6
+    },
+    {
+      "id": "models_user_webapplication1_models_user",
+      "label": "User",
+      "degree": 6
+    },
+    {
+      "id": "controllers_accountcontroller_webapplication1_controllers_accountcontroller",
+      "label": "AccountController",
+      "degree": 6
+    },
+    {
+      "id": "controllers_homecontroller_webapplication1_controllers_homecontroller",
+      "label": "HomeController",
+      "degree": 6
+    },
+    {
+      "id": "controllers_admincontroller_webapplication1_controllers_admincontroller",
+      "label": "AdminController",
+      "degree": 6
+    },
+    {
+      "id": "controllers_studiocontroller_webapplication1_controllers_studiocontroller",
+      "label": "StudioController",
+      "degree": 6
+    },
+    {
+      "id": "properties_launchsettings_profiles_http",
+      "label": "http",
+      "degree": 6
+    }
+  ],
+  "surprises": [
+    {
+      "source": "HomeController",
+      "target": "OceanDbContext",
+      "source_files": [
+        "Controllers/HomeController.cs",
+        "Data/OceanDbContext.cs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "OceanDbContext",
+      "target": "ArtworkSubmission",
+      "source_files": [
+        "Data/OceanDbContext.cs",
+        "Models/ArtworkSubmission.cs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "OceanDbContext",
+      "target": "CreatureTemplate",
+      "source_files": [
+        "Data/OceanDbContext.cs",
+        "Models/CreatureTemplate.cs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "OceanDbContext",
+      "target": "User",
+      "source_files": [
+        "Data/OceanDbContext.cs",
+        "Models/User.cs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "AdminDashboardViewModel",
+      "target": "ArtworkSubmission",
+      "source_files": [
+        "ViewModels/AdminDashboardViewModel.cs",
+        "Models/ArtworkSubmission.cs"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `HomeController` connect `HomeController` to `OceanDbContext`, `WebApplication1.Models`?",
+      "why": "High betweenness centrality (0.083) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `StudioController` connect `StudioController` to `WebApplication1.Models`, `HomeController`?",
+      "why": "High betweenness centrality (0.072) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `OceanDbContext` connect `OceanDbContext` to `WebApplication1.Models`, `HomeController`?",
+      "why": "High betweenness centrality (0.072) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `ErrorViewModel`, `applicationUrl`, `commandName` to the rest of the system?",
+      "why": "27 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `OceanDbContext` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `http` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
