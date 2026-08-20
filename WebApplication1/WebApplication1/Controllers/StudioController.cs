@@ -13,13 +13,6 @@ public class StudioController(OceanDbContext db, IWebHostEnvironment environment
     public async Task<IActionResult> Index()
     {
         var templates = await db.CreatureTemplates.Where(x => x.IsActive).OrderBy(x => x.Id).ToListAsync();
-        var approvedArt = await db.ArtworkSubmissions
-            .Where(x => x.Status == "Approved")
-            .OrderByDescending(x => x.ReviewedAt)
-            .Select(x => x.ImagePath)
-            .Take(10)
-            .ToListAsync();
-        ViewBag.ApprovedArt = approvedArt;
         return View(templates);
     }
 

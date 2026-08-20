@@ -157,17 +157,20 @@
 
   <!-- Swimming fish (cấu trúc y hệt ocean-immersive) -->
   @{
-      var approvedArt = ViewBag.ApprovedArt as List<string> ?? new List<string>();
-      var fishImages = new List<string>();
-      for (int f = 0; f < 4; f++) {
-          fishImages.Add(approvedArt.Count > f ? approvedArt[f] : "/images/templates/fish-template.png");
-      }
+      var defaultFishImages = new List<string> {
+          "/images/defaults/colored_fish_1.png",
+          "/images/defaults/colored_fish_2.png",
+          "/images/defaults/colored_squid_1.png",
+          "/images/defaults/colored_squid_2.png",
+          "/images/defaults/colored_striped_fish_1.png",
+          "/images/defaults/colored_striped_fish_2.png"
+      };
   }
   <div id="studioFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;">
-    @for (int fi = 0; fi < fishImages.Count; fi++)
+    @for (int fi = 0; fi < defaultFishImages.Count; fi++)
     {
         <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
-          <img src="@fishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
+          <img src="@defaultFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
         </article>
     }
   </div>

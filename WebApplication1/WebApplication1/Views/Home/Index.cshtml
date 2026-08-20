@@ -143,13 +143,15 @@
     }
   </div>
 
-  <!-- Swimming fish layer moved outside wrappers -->
   @{
-      var homeApprovedArt = ViewBag.ApprovedArt as List<string> ?? new List<string>();
-      var homeFishImages  = new List<string>();
-      for (int hf = 0; hf < 4; hf++) {
-          homeFishImages.Add(homeApprovedArt.Count > hf ? homeApprovedArt[hf] : "/images/templates/fish-template.png");
-      }
+      var defaultFishImages = new List<string> {
+          "/images/defaults/colored_fish_1.png",
+          "/images/defaults/colored_fish_2.png",
+          "/images/defaults/colored_squid_1.png",
+          "/images/defaults/colored_squid_2.png",
+          "/images/defaults/colored_striped_fish_1.png",
+          "/images/defaults/colored_striped_fish_2.png"
+      };
   }
 
   <!-- Hero -->
@@ -393,10 +395,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Fish layer: OUTSIDE all wrappers so z-index is global -->
 <div id="homeFishLayer" style="position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;">
-  @for (int fi = 0; fi < homeFishImages.Count; fi++)
+  @for (int fi = 0; fi < defaultFishImages.Count; fi++)
   {
       <article class="fish-creature" data-index="@fi" style="position:absolute;width:@(fi % 2 == 0 ? 160 : 110)px;left:0;top:0;will-change:left,top,transform;">
-        <img src="@homeFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
+        <img src="@defaultFishImages[fi]" class="fish-body-layer" alt="" style="width:100%;max-height:130px;object-fit:contain;display:block;" />
       </article>
   }
 </div>
